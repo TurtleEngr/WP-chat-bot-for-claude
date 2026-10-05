@@ -18,6 +18,10 @@ mBuildList = \
 	dist/claude-chat-bot/readme.txt \
 	dist/claude-chat-bot/LICENSE
 
+mDocList = \
+	README.html \
+	README.md
+
 mBranch = $$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
 
 mServer = moria.whyayh.com
@@ -45,14 +49,14 @@ update :
 	git co $(mBranch)
 	git pull origin $(mBranch)
 
-build : clean update README.md $(mProduct)
+build : clean update $(mDocList) $(mProduct)
 	@echo 'If OK, make save'
 
 save development : check-dev
 	-git ci -am Updated
 	git push origin $(mBranch)
 	-ssh $(mServer) mkdir -p $(mPubDev)
-	rsync -a README.org readme.txt dist/claude-chat-bot-$$(cat VERSION).zip $(mServer):$(mPubDev)
+	rsync -a README.*readme.txt dist/claude-chat-bot-$$(cat VERSION).zip $(mServer):$(mPubDev)
 	cp VERSION VERSION-dev
 	-git ci -am Updated
 	git push origin $(mBranch)
@@ -90,11 +94,17 @@ $(mProduct) : $(mBuildList)
 	cd dist; zip -r claude-chat-bot-$$(cat ../VERSION).zip claude-chat-bot
 	-touch $@
 
+README.html : README.org VERSION
+	org2html.sh -i README.org -o $@ -s 2
+	sed -i "s/VERSION/$$(cat VERSION)/" $@
+	rm-trailing-sp $@
+
 README.md : README.org VERSION
-	pandoc -f org -t markdown <README.org >$@
+	pandoc -f org -t markdown <README.org | awk '/<!DOCTYPE html>/,/```/ {next} /```{=html}/ {next} {print $$0}' >$@
 	sed -i "s/VERSION/$$(cat VERSION)/" $@
 	sed -i 's/^\[version]/![version]/' $@
 	sed -i 's/^\[WordPress]/![WordPress]/' $@
+	rm-trailing-sp $@
 
 check-dev :
 	if diff -q VERSION VERSION-dev >/dev/null 2>&1; then \
