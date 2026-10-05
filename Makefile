@@ -18,6 +18,8 @@ mBuildList = \
 	dist/claude-chat-bot/readme.txt \
 	dist/claude-chat-bot/LICENSE
 
+mBranch = $$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+
 mServer = moria.whyayh.com
 mPubDev = /rel/development/software/own/$(mProj)
 mPubRel = /rel/released/software/own/$(mProj)
@@ -40,25 +42,26 @@ usage :
 	@git st
 
 update :
-	git co develop
-	git pull origin develop
+	git co $(mBranch)
+	git pull origin $(mBranch)
 
 build : clean update README.md $(mProduct)
 	@echo 'If OK, make save'
 
 save development : check-dev
 	-git ci -am Updated
-	git push origin develop
+	git push origin $(mBranch)
 	-ssh $(mServer) mkdir -p $(mPubDev)
 	rsync -a README.org readme.txt dist/claude-chat-bot-$$(cat VERSION).zip $(mServer):$(mPubDev)
 	cp VERSION VERSION-dev
 	-git ci -am Updated
-	git push origin develop
+	git push origin $(mBranch)
 	@echo 'If OK, make publish'
 
 publish release : check-rel
+	if [[ "$(mBranch)" != "develop" ]]; then exit 1; fi
 	-git ci -am Updated
-	git tag -f "ver-$$(cat VERSION)"
+	git tag "ver-$$(cat VERSION)"
 	git push --tags origin develop
 	git co main
 	git pull --tags origin main
