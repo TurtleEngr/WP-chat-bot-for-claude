@@ -1,11 +1,11 @@
 <?php
 /*
- * Plugin Name: Claude Chat Interface
- * Plugin URI: https://github.com/TurtleEngr/WP-Claude-Interface/tree/main
+ * Plugin Name: Claude Chat bot
+ * Plugin URI: https://github.com/TurtleEngr/WP-claude-chat-bot
  * Description: Adds a Claude AI chat interface to your WordPress site using a shortcode.
  * Version: VERSION
  * Text Domain: claude
- * Author: Volkan Kücükbudak, enh: TurtleEngr
+ * Author: TurtleEngr
  */
 
 /* Lock out script kiddies: die an direct call */
@@ -207,8 +207,8 @@ function fClaudeChatSanitizePreFetchUrls( $value ) {
 
 /* Enqueue necessary scripts and styles */
 function fClaudeChatEnqueueScripts() {
-    wp_enqueue_style('claude-chat-style', plugin_dir_url(__FILE__) . 'css/claude-chat.css');
-    wp_enqueue_script('claude-chat-script', plugin_dir_url(__FILE__) . 'js/claude-chat.js', array('jquery'), 'VERSION', true);
+    wp_enqueue_style('claude-chat-style', plugin_dir_url(__FILE__) . 'css/claude-chat-bot.css');
+    wp_enqueue_script('claude-chat-script', plugin_dir_url(__FILE__) . 'js/claude-chat-bot.js', array('jquery'), 'VERSION', true);
     wp_localize_script('claude-chat-script', 'claudeChat', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce'    => wp_create_nonce('claude-chat-nonce'),
@@ -216,11 +216,11 @@ function fClaudeChatEnqueueScripts() {
 }
 add_action('wp_enqueue_scripts', 'fClaudeChatEnqueueScripts');
 
-/* Shortcode to display the chat interface */
+/* Shortcode to display the chat bot */
 function fClaudeChatShortCode() {
     ob_start();
 ?>
-    <div id="claude-chat-interface">
+    <div id="claude-chat-bot">
         <div id="claude-chat-messages"></div>
         <textarea id="claude-chat-input" placeholder="Ask Claude something..." rows="3"></textarea>
         <button id="claude-chat-submit">Send</button> (Version: VERSION)
@@ -466,7 +466,7 @@ function fClaudeChatFetchUrl( $url ) {
             'timeout'             => cgClaudeChatFetchTimeOut,
             'redirection'         => 3,
             'limit_response_size' => cgClaudeChatMaxFetchBytes,
-            'user-agent'          => 'WP-Claude-Interface/VERSION',
+            'user-agent'          => 'WP-claude-chat-bot/VERSION',
         ) );
 
     if ( is_wp_error( $response ) ) {
@@ -1062,7 +1062,7 @@ add_action('admin_init', 'fClaudeChatSettingsInit');
 /* Field render callbacks */
 function fClaudeChatSettingsSection($args) {
     echo '<p>Version: VERSION</p>';
-    echo '<p>Click <a href="https://github.com/TurtleEngr/WP-Claude-Interface/blob/main/README.md" target="_blank">HERE</a> for help.</p>';
+    echo '<p>Click <a href="https://github.com/TurtleEngr/WP-Claude-chat-bot/blob/main/README.md" target="_blank">HERE</a> for help.</p>';
     echo '<p>Enter your Claude API settings below:</p>';
 }
 

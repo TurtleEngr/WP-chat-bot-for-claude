@@ -1,22 +1,22 @@
-# Makefile for WP-Claude-Interface
+# Makefile for WP-claude-chat-bot
 
 # ----------
 # Macros
 
 SHELL := /bin/bash
 
-mProj = WP-Claude-Interface
-mProduct = dist/claude-chat-interface-VERSION.zip
+mProj = WP-claude-chat-bot
+mProduct = dist/claude-chat-bot-VERSION.zip
 
 mBuildList = \
-	dist/claude-chat-interface \
-	dist/claude-chat-interface/css \
-	dist/claude-chat-interface/js \
-	dist/claude-chat-interface/claude.php \
-	dist/claude-chat-interface/claude3.png \
-	dist/claude-chat-interface/claude_set.png \
-	dist/claude-chat-interface/readme.txt \
-	dist/claude-chat-interface/LICENSE
+	dist/claude-chat-bot \
+	dist/claude-chat-bot/css \
+	dist/claude-chat-bot/js \
+	dist/claude-chat-bot/claude.php \
+	dist/claude-chat-bot/claude3.png \
+	dist/claude-chat-bot/claude_set.png \
+	dist/claude-chat-bot/readme.txt \
+	dist/claude-chat-bot/LICENSE
 
 mServer = moria.whyayh.com
 mPubDev = /rel/development/software/own/$(mProj)
@@ -50,7 +50,7 @@ save development : check-dev
 	-git ci -am Updated
 	git push origin develop
 	-ssh $(mServer) mkdir -p $(mPubDev)
-	rsync -a README.org readme.txt dist/claude-chat-interface-$$(cat VERSION).zip $(mServer):$(mPubDev)
+	rsync -a README.org readme.txt dist/claude-chat-bot-$$(cat VERSION).zip $(mServer):$(mPubDev)
 	cp VERSION VERSION-dev
 	-git ci -am Updated
 	git push origin develop
@@ -66,7 +66,7 @@ publish release : check-rel
 	git push --tags origin main
 	git co develop
 	-ssh $(mServer) mkdir -p $(mPubRel)
-	rsync -a README.org readme.txt dist/claude-chat-interface-$$(cat VERSION).zip $(mServer):$(mPubRel)
+	rsync -a README.org readme.txt dist/claude-chat-bot-$$(cat VERSION).zip $(mServer):$(mPubRel)
 	cp VERSION VERSION-rel
 	-git ci -am Updated
 	git push origin develop
@@ -84,7 +84,7 @@ dist-clean : clean
 
 $(mProduct) : $(mBuildList)
 	php -l claude.php
-	cd dist; zip -r claude-chat-interface-$$(cat ../VERSION).zip claude-chat-interface
+	cd dist; zip -r claude-chat-bot-$$(cat ../VERSION).zip claude-chat-bot
 	-touch $@
 
 README.md : README.org VERSION
@@ -122,26 +122,26 @@ incMinor : VERSION
 incMajor : VERSION
 	incver.sh -M
 
-dist/claude-chat-interface :
+dist/claude-chat-bot :
 	-mkdir -p $@
 
-dist/claude-chat-interface/css : css
-	rsync -r $? dist/claude-chat-interface/
+dist/claude-chat-bot/css : css
+	rsync -r $? dist/claude-chat-bot/
 
-dist/claude-chat-interface/js : js
-	rsync -r $? dist/claude-chat-interface/
+dist/claude-chat-bot/js : js
+	rsync -r $? dist/claude-chat-bot/
 
-dist/claude-chat-interface/claude.php : claude.php
+dist/claude-chat-bot/claude.php : claude.php
 	sed "s/VERSION/$$(cat VERSION)/" <$? >$@
 
-dist/claude-chat-interface/readme.txt : readme.txt
+dist/claude-chat-bot/readme.txt : readme.txt
 	sed "s/VERSION/$$(cat VERSION)/" <$? >$@
 
-dist/claude-chat-interface/claude3.png : claude3.png
+dist/claude-chat-bot/claude3.png : claude3.png
 	cp $? $@
 
-dist/claude-chat-interface/claude_set.png : claude_set.png
+dist/claude-chat-bot/claude_set.png : claude_set.png
 	cp $? $@
 
-dist/claude-chat-interface/LICENSE : LICENSE
+dist/claude-chat-bot/LICENSE : LICENSE
 	cp $? $@
