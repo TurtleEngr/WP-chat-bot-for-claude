@@ -1,6 +1,6 @@
 # Claude Chat Interface (WordPress Plugin)
 
-![version](https://img.shields.io/badge/version-2.4.1-orange.svg)
+![version](https://img.shields.io/badge/version-2.4.2-orange.svg)
 
 ![WordPress](https://img.shields.io/badge/WordPress-Compatible-blue.svg)
 
