@@ -1,0 +1,126 @@
+* Submit Pluging to wordpress.org
+
+** Prompt 1
+
+- Update the php file claude-chat-bot.php and the readme.txt files to
+  comply with the "submition guidelines" that are define below.
+
+- Also, follow the directions in CLAUDE.org
+
+*** Submition Guidelines
++ https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/
++ https://developer.wordpress.org/plugins/plugin-basics/
++ https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/
++ https://wordpress.org/plugins/files/2016/06/readme.txt - syntax example
++ https://developer.wordpress.org/apis/security/
++ https://developer.wordpress.org/apis/security/escaping/
++ https://developer.wordpress.org/apis/security/nonces/ - for forms
+
+*** Code locations
++ The code for this plugin is at:
+  https://github.com/TurtleEngr/WP-claude-chat-bot
+
+** Response 1
+
+I'll pull the plugin from GitHub, review it against the WordPress.org
+guidelines, and send back complete updated `claude-chat-bot.php` and
+`readme.txt` files.
+
+Now the PHP edits, one guideline item at a time.
+
+Now the admin-page escaping.
+
+I've updated both files; `claude-chat-bot.php` and `readme.txt` are
+attached as complete files. Some guideline problems are still open
+(listed at the end).
+
+**Check results:** `php -l` reports no errors. I ran the WordPress
+Coding Standards security, escaping and input checks on the PHP
+file. The original had 6 errors and 8 warnings; the new file has 0
+errors and 3 warnings. All 3 warnings are for `file_put_contents()` on
+the log files, which are kept, and the reviewers may still comment on
+them (see the open problems).
+
+**Changes in `claude-chat-bot.php`**, each tied to a guideline:
+- **Plugin header:** added `License: GPLv2 or later`, `License URI`,
+  `Requires at least: 6.0` and `Requires PHP: 7.4`. Changed `Text
+  Domain` from `claude` to `claude-chat-bot` so it matches the slug,
+  and changed every `'claude-chat'` text-domain string to
+  `'claude-chat-bot'`.
+- **Settings sanitizing:** the API key, model, temperature and max
+  tokens settings had no sanitize callbacks; now they do.
+  - Model must be one of the entries in `cgClaudeChatModels`.
+  - Temperature is kept between 0 and 1; blank still means "not set".
+  - Max tokens is kept between 1 and 8096.
+- **Input:** `$_POST['message']`, `$_SERVER['REMOTE_ADDR']` and
+  `$_GET['logs-cleared']` now use `isset` + `wp_unslash` +
+  sanitize. An empty message returns an error.
+- **Output escaping:** the JS inserts Claude's reply with `.html()`,
+  so the server now passes it through `wp_kses_post()`. This keeps
+  normal HTML and removes scripts. The log links and help link now use
+  `esc_url`/`esc_html`, and the model dropdown uses `selected()`.
+- **Functions reviewers flag:**
+  - `print_r` → `wp_json_encode`
+  - `json_encode` → `wp_json_encode`
+  - `date` → `wp_date`
+  - `wp_redirect` → `wp_safe_redirect`
+  - `error_log(…, 3, file)` → `file_put_contents(…, FILE_APPEND | LOCK_EX)`
+  - The stylesheet is now loaded with a version number.
+- **Bug fix:** Clear Logs no longer writes to the log path when that
+  path couldn't be found.
+
+**Changes in `readme.txt`:**
+- **Header:** name now matches the plugin header ("Claude Chat bot"). License is GPL. Tags cut to 5, with the generic "WordPress" tag removed. Added a short description under 150 characters.
+- **New sections:**
+  - **External services:** says what is sent to Anthropic, when it's sent, and links to Anthropic's terms and privacy policy. It also covers the fetch_url and pre-fetch requests. Guideline 6 requires this.
+  - **Privacy:** says chats are logged.
+  - **FAQ:** the Q&A that was in the description.
+  - **Upgrade Notice.**
+- **Screenshots:** now captions only. The markdown image links don't
+  work there; the directory reads the images from `screenshot-1.png`
+  and `screenshot-2.png` in the SVN `assets/` folder.
+
+**Problems these two files can't fix (your call):**
+1. **License.** The `LICENSE` file is still DBAD, which isn't
+   GPL-compatible (guideline 1). I changed the license headers to
+   GPLv2+, but you'll need to replace `LICENSE` too. Check with
+   aicodecraft first if the original code is theirs.
+2. **Trademark.** Guideline 17 says a slug can't *start* with a
+   trademark you don't own, so `claude-chat-bot` will likely be
+   rejected. A name like "Chat Bot for Claude" (slug
+   `chat-bot-for-claude`) is the accepted pattern. Renaming means
+   changing the text domain again.
+3. **Public logs.** Visitor chats in `wp-content/uploads/claude/` can
+   be read from the web. I documented this rather than blocking it,
+   because the settings page links to those files. Reviewers may ask
+   for them to be protected.
+4. **"Tested up to".** I set it to 7.0, because the current 7.0 release notes don't point to a 7.1 release yet. Change it if 7.1 is out.
+5. **Contributors.** `aicodecraft` and `turtle-engr` must be real
+   WordPress.org usernames.
+6. **Not changed, but noticed:**
+   - The Makefile builds `claude.php`, which doesn't exist (the file
+     is `claude-chat-bot.php`), so `make build` will fail.
+   - Several models in the model list are retired from the API.
+   - The question log uses a hardcoded `America/Los_Angeles` timezone.
+
+Sources: [Detailed Plugin
+Guidelines](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/),
+[How your readme.txt
+works](https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/),
+[WordPress 7.0 release
+notes](https://wordpress.org/documentation/wordpress-version/version-7-0/)
+
+I didn't commit or push anything, because you declined push access to
+`TurtleEngr/WP-claude-chat-bot`. The changes are still uncommitted in
+my local copy of the repo, and the two updated files are the ones
+attached in my last message.
+
+How would you like to handle it? I could commit them locally on a new
+branch (for example `wp-org-guidelines`) and not push. You could also
+commit them yourself from the attached files. Or, if you want me to
+push, approve the access and tell me which branch to use; I'd suggest
+a new branch rather than `develop`.
+
+** Prompt 2
+
+https://platform.claude.com/docs/en/api/beta/models/list
