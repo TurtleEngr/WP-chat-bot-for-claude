@@ -206,11 +206,11 @@ needed.
 
 1.  Public View
 
-    ![Claude User View](claude_user.png)
+    ![Claude User View](assets/screenshot-2.png)
 
 2.  Settings
 
-    ![claude admin view](claude_admin.png)
+    ![claude admin view](assets/screenshot-1.png)
 
     -   API Key - Put your Claude API key here
     -   Model - Pick the model you want
