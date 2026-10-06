@@ -267,12 +267,12 @@ needed.
 **** Public View
 
 #+caption: Claude User View
-[[file:claude_user.png]]
+[[file:assets/screenshot-2.png]]
 
 **** Settings
 
 #+caption: claude admin view
-[[file:claude_admin.png]]
+[[file:assets/screenshot-1.png]]
 
 - API Key - Put your Claude API key here
 - Model - Pick the model you want
