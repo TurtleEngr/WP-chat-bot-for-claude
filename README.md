@@ -1,4 +1,4 @@
-# Claude Chat Interface (WordPress Plugin)
+# Chat Chat Bot For Claude (WordPress Plugin)
 
 ![version](https://img.shields.io/badge/version-2.4.2-orange.svg)
 
@@ -48,7 +48,7 @@ a simple shortcode.
 
 ## Build/Install
 
-Source: <https://github.com/TurtleEngr/WP-Claude-Interface>
+Source: <https://github.com/TurtleEngr/WP-chat-bot-for-claude>
 
 1.  Clone this repo
 2.  Or click on the lastest \"tag,\" select the \"Source code\" link to
@@ -206,11 +206,11 @@ needed.
 
 1.  Public View
 
-    ![Claude 3 WordPress Plugin](claude3.png)
+    ![Claude User View](claude_user.png)
 
 2.  Settings
 
-    ![Claude 3 WordPress Plugin](claude_set.png)
+    ![claude admin view](claude_admin.png)
 
     -   API Key - Put your Claude API key here
     -   Model - Pick the model you want

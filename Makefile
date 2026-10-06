@@ -56,7 +56,7 @@ save development : check-dev
 	-git ci -am Updated
 	git push origin $(mBranch)
 	-ssh $(mServer) mkdir -p $(mPubDev)
-	rsync -a README.*readme.txt dist/chat-bot-for-claude-$$(cat VERSION).zip $(mServer):$(mPubDev)
+	rsync -a README.* readme.txt dist/chat-bot-for-claude-$$(cat VERSION).zip $(mServer):$(mPubDev)
 	cp VERSION VERSION-dev
 	-git ci -am Updated
 	git push origin $(mBranch)
@@ -73,7 +73,7 @@ publish release : check-rel
 	git push --tags origin main
 	git co develop
 	-ssh $(mServer) mkdir -p $(mPubRel)
-	rsync -a README.org readme.txt dist/chat-bot-for-claude-$$(cat VERSION).zip $(mServer):$(mPubRel)
+	rsync -a README.* readme.txt dist/chat-bot-for-claude-$$(cat VERSION).zip $(mServer):$(mPubRel)
 	cp VERSION VERSION-rel
 	-git ci -am Updated
 	git push origin develop
@@ -144,16 +144,16 @@ dist/chat-bot-for-claude/css : css
 dist/chat-bot-for-claude/js : js
 	rsync -r $? dist/chat-bot-for-claude/
 
-dist/chat-bot-for-claude/claude.php : claude.php
+dist/chat-bot-for-claude/chat-bot-for-claude.php : chat-bot-for-claude.php
 	sed "s/VERSION/$$(cat VERSION)/" <$? >$@
 
 dist/chat-bot-for-claude/readme.txt : readme.txt
 	sed "s/VERSION/$$(cat VERSION)/" <$? >$@
 
-dist/chat-bot-for-claude/claude3.png : claude3.png
+dist/chat-bot-for-claude/claude_user.png : claude3.png
 	cp $? $@
 
-dist/chat-bot-for-claude/claude_set.png : claude_set.png
+dist/chat-bot-for-claude/claude_admin.png : claude_set.png
 	cp $? $@
 
 dist/chat-bot-for-claude/LICENSE : LICENSE
