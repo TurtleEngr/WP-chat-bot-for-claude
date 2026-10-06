@@ -12,9 +12,9 @@ mBuildList = \
 	dist/chat-bot-for-claude \
 	dist/chat-bot-for-claude/css \
 	dist/chat-bot-for-claude/js \
-	dist/chat-bot-for-claude/claude.php \
-	dist/chat-bot-for-claude/claude3.png \
-	dist/chat-bot-for-claude/claude_set.png \
+	dist/chat-bot-for-claude/chat-bot-for-claude.php \
+	dist/chat-bot-for-claude/claude_user.png \
+	dist/chat-bot-for-claude/claude_admin.png \
 	dist/chat-bot-for-claude/readme.txt \
 	dist/chat-bot-for-claude/LICENSE
 
