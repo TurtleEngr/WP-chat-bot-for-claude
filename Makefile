@@ -13,8 +13,8 @@ mBuildList = \
 	dist/chat-bot-for-claude/css \
 	dist/chat-bot-for-claude/js \
 	dist/chat-bot-for-claude/chat-bot-for-claude.php \
-	dist/chat-bot-for-claude/claude_user.png \
-	dist/chat-bot-for-claude/claude_admin.png \
+	dist/chat-bot-for-claude/assets/screenshot-1.png \
+	dist/chat-bot-for-claude/assets/screenshot-2.png \
 	dist/chat-bot-for-claude/readme.txt \
 	dist/chat-bot-for-claude/LICENSE
 
@@ -150,10 +150,12 @@ dist/chat-bot-for-claude/chat-bot-for-claude.php : chat-bot-for-claude.php
 dist/chat-bot-for-claude/readme.txt : readme.txt
 	sed "s/VERSION/$$(cat VERSION)/" <$? >$@
 
-dist/chat-bot-for-claude/claude_user.png : claude_user.png
+dist/chat-bot-for-claude/assets/screenshot-1.png : assets/screenshot-1.png
+	-mkdir -p dist/chat-bot-for-claude/assets
 	cp $? $@
 
-dist/chat-bot-for-claude/claude_admin.png : claude_admin.png
+dist/chat-bot-for-claude/assets/screenshot-2.png : assets/screenshot-2.png
+	-mkdir -p dist/chat-bot-for-claude/assets
 	cp $? $@
 
 dist/chat-bot-for-claude/LICENSE : LICENSE
