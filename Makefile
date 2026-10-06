@@ -90,7 +90,7 @@ dist-clean : clean
 # Work Targets
 
 $(mProduct) : $(mBuildList)
-	php -l claude.php
+	php -l chat-bot-for-claude.php
 	cd dist; zip -r chat-bot-for-claude-$$(cat ../VERSION).zip chat-bot-for-claude
 	-touch $@
 
