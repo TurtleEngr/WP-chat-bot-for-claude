@@ -150,10 +150,10 @@ dist/chat-bot-for-claude/chat-bot-for-claude.php : chat-bot-for-claude.php
 dist/chat-bot-for-claude/readme.txt : readme.txt
 	sed "s/VERSION/$$(cat VERSION)/" <$? >$@
 
-dist/chat-bot-for-claude/claude_user.png : claude3.png
+dist/chat-bot-for-claude/claude_user.png : claude_user.png
 	cp $? $@
 
-dist/chat-bot-for-claude/claude_admin.png : claude_set.png
+dist/chat-bot-for-claude/claude_admin.png : claude_admin.png
 	cp $? $@
 
 dist/chat-bot-for-claude/LICENSE : LICENSE

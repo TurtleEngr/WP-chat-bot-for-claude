@@ -140,7 +140,7 @@ as its sanitize callback (multi-line safe).
 Added at the bottom of the settings form via
 `fClaudeChatSettingsInit().`{.verbatim} It uses
 `fClaudeChatTextareaFieldCallback()`{.verbatim} that renders a
-\<textarea\> (6 rows × 60 cols) with a description explaining the
+&lt;textarea\> (6 rows × 60 cols) with a description explaining the
 caching behaviour. Leaving it blank disables the feature entirely.
 
 **prefix + cache~control~** - `fClaudeChatApiRequest()`{.verbatim}
