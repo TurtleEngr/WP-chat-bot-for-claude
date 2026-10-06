@@ -1,19 +1,19 @@
-=== Claude Chat bot ===
-Contributors: aicodecraft, turtle-engr
-Donate link: https://aicodecraft.io/donate
+=== Chat Bot For Claude ===
+Contributors: turtleengr
 Tags: chat, chatbot, ai, claude, anthropic
 Tested up to: 7.0
 Stable tag: VERSION
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Add a Claude AI chat box to any page or post with the [claude_chat] shortcode.
+Add a Claude AI chat bot to any page or post with the [claude_chat] shortcode.
 
 == Description ==
 
-The Claude Chat bot plugin lets you add a Claude AI chat interface to
-your WordPress website. Configure it from the WordPress admin panel
-and use a shortcode to embed the chat interface anywhere on your site.
+The "Chat Bot For Claude" plugin lets you add a Claude AI chat
+interface to your WordPress website. Configure it from the WordPress
+admin panel and use a shortcode to embed the chat interface anywhere
+on your site.
 
 Features:
 
@@ -82,11 +82,11 @@ API key there. API usage is billed by Anthropic to that account.
 
 = Where can I find more help? =
 
-See https://github.com/TurtleEngr/WP-claude-chat-bot
+See https://github.com/TurtleEngr/WP-chat-bot-for-claude
 
 == Screenshots ==
 
-1. Admin settings page for Claude Chat bot.
+1. Admin settings page for Chat Bot For Claude.
 2. Chat interface displayed on a WordPress page.
 
 == Changelog ==

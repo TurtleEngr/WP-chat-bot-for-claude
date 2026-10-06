@@ -62,7 +62,7 @@ blockquote {
 </head>
 <body>
 #+END_EXPORT
-* Claude Chat Interface (WordPress Plugin)
+* Chat Chat Bot For Claude (WordPress Plugin)
 
 [[https://img.shields.io/badge/version-VERSION-orange.svg][version]]
 
@@ -112,7 +112,7 @@ a simple shortcode.
 
 ** Build/Install
 
-Source: https://github.com/TurtleEngr/WP-Claude-Interface
+Source: https://github.com/TurtleEngr/WP-chat-bot-for-claude
 
 1. Clone this repo
 2. Or click on the lastest "tag," select the "Source code" link to
@@ -266,13 +266,13 @@ needed.
 
 **** Public View
 
-#+caption: Claude 3 WordPress Plugin
-[[file:claude3.png]]
+#+caption: Claude User View
+[[file:claude_user.png]]
 
 **** Settings
 
-#+caption: Claude 3 WordPress Plugin
-[[file:claude_set.png]]
+#+caption: claude admin view
+[[file:claude_admin.png]]
 
 - API Key - Put your Claude API key here
 - Model - Pick the model you want

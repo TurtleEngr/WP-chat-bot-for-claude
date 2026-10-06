@@ -1,7 +1,7 @@
 <?php
 /*
- * Plugin Name: Claude Chat bot
- * Plugin URI: https://github.com/TurtleEngr/WP-claude-chat-bot
+ * Plugin Name: Chat Bot For Claude
+ * Plugin URI: https://github.com/TurtleEngr/WP-chat-bot-for-claude
  * Description: Adds a Claude AI chat interface to your WordPress site using a shortcode.
  * Version: VERSION
  * Requires at least: 6.0
@@ -9,13 +9,21 @@
  * Author: TurtleEngr
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: claude-chat-bot
+ * Text Domain: chat-bot-for-claude
  */
 
 /* Lock out script kiddies: die an direct call */
 if (! defined('ABSPATH')) {
     exit;
 }
+
+/*
+ * ========================================
+ * Globals  Prefix: cgClaudeChat
+ * Function Prefix: fClaudeChat
+ * ========================================
+ */
+
 
 /*
  * ========================================
@@ -174,7 +182,7 @@ function fClaudeChatSanitizePrefixPrompt( $value ) {
             'claude_chat_prefix_prompt_truncated',
             sprintf(
                 /* translators: 1: submitted size, 2: allowed size */
-                esc_html__( 'Prefix Prompt was %1$d bytes; truncated to the %2$d-byte limit.', 'claude-chat-bot' ),
+                esc_html__( 'Prefix Prompt was %1$d bytes; truncated to the %2$d-byte limit.', 'chat-bot-for-claude' ),
                 $len,
                 cgClaudeChatMaxPrefixPrompt
             ),
@@ -232,7 +240,7 @@ function fClaudeChatSanitizePreFetchUrls( $value ) {
             'claude_chat_prefetch_urls_skipped',
             sprintf(
                 /* translators: 1: number skipped, 2: allowed maximum */
-                esc_html__( '%1$d pre-fetch line(s) dropped: invalid, non-http(s), private address, or beyond the %2$d-URL limit.', 'claude-chat-bot' ),
+                esc_html__( '%1$d pre-fetch line(s) dropped: invalid, non-http(s), private address, or beyond the %2$d-URL limit.', 'chat-bot-for-claude' ),
                 $skipped,
                 cgClaudeChatMaxPreFetchUrls
             ),
@@ -246,8 +254,8 @@ function fClaudeChatSanitizePreFetchUrls( $value ) {
 
 /* Enqueue necessary scripts and styles */
 function fClaudeChatEnqueueScripts() {
-    wp_enqueue_style('claude-chat-style', plugin_dir_url(__FILE__) . 'css/claude-chat-bot.css', array(), 'VERSION');
-    wp_enqueue_script('claude-chat-script', plugin_dir_url(__FILE__) . 'js/claude-chat-bot.js', array('jquery'), 'VERSION', true);
+    wp_enqueue_style('claude-chat-style', plugin_dir_url(__FILE__) . 'css/chat-bot-for-claude.css', array(), 'VERSION');
+    wp_enqueue_script('claude-chat-script', plugin_dir_url(__FILE__) . 'js/chat-bot-for-claude.js', array('jquery'), 'VERSION', true);
     wp_localize_script('claude-chat-script', 'claudeChat', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce'    => wp_create_nonce('claude-chat-nonce'),
@@ -259,7 +267,7 @@ add_action('wp_enqueue_scripts', 'fClaudeChatEnqueueScripts');
 function fClaudeChatShortCode() {
     ob_start();
 ?>
-    <div id="claude-chat-bot">
+    <div id="chat-bot-for-claude">
         <div id="claude-chat-messages"></div>
         <textarea id="claude-chat-input" placeholder="Ask Claude something..." rows="3"></textarea>
         <button id="claude-chat-submit">Send</button> (Version: VERSION)
@@ -510,7 +518,7 @@ function fClaudeChatFetchUrl( $url ) {
             'timeout'             => cgClaudeChatFetchTimeOut,
             'redirection'         => 3,
             'limit_response_size' => cgClaudeChatMaxFetchBytes,
-            'user-agent'          => 'WP-claude-chat-bot/VERSION',
+            'user-agent'          => 'WP-chat-bot-for-claude/VERSION',
         ) );
 
     if ( is_wp_error( $response ) ) {
@@ -924,7 +932,7 @@ function fClaudeChatApiRequest( $message ) {
  */
 function fClaudeChatClearLogs() {
     if ( ! current_user_can('manage_options') ) {
-        wp_die( esc_html__('Unauthorized', 'claude-chat-bot') );
+        wp_die( esc_html__('Unauthorized', 'chat-bot-for-claude') );
     }
     check_admin_referer('fClaudeChatClearLogs_action', 'fClaudeChatClearLogs_nonce');
 
@@ -979,7 +987,7 @@ function fClaudeChatSettingsPage_html() {
         ?>
         <?php if ( $logs_cleared === '1' ) : ?>
         <div class="notice notice-success is-dismissible">
-            <p><?php esc_html_e('Log files cleared successfully.', 'claude-chat-bot'); ?></p>
+            <p><?php esc_html_e('Log files cleared successfully.', 'chat-bot-for-claude'); ?></p>
         </div>
         <?php endif; ?>
 
@@ -1116,7 +1124,7 @@ add_action('admin_init', 'fClaudeChatSettingsInit');
 /* Field render callbacks */
 function fClaudeChatSettingsSection($args) {
     echo '<p>Version: VERSION</p>';
-    echo '<p>Click <a href="' . esc_url('https://github.com/TurtleEngr/WP-Claude-chat-bot/blob/main/README.md') . '" target="_blank">HERE</a> for help.</p>';
+    echo '<p>Click <a href="' . esc_url('https://github.com/TurtleEngr/WP-chat-bot-for-claude/blob/main/README.md') . '" target="_blank">HERE</a> for help.</p>';
     echo '<p>Enter your Claude API settings below:</p>';
 }
 
