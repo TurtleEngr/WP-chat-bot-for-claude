@@ -1,3 +1,67 @@
+#+BEGIN_EXPORT html
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+<title>make-core</title>
+  <style type="text/css">
+body {
+    margin-left: 5%;
+    margin-right: 5%;
+    font-family: Times, serif;
+    font-size: 110%;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+    font-family: Times, serif;
+}
+
+dt {
+    font-weight: bold
+}
+
+pre {
+    font-family: Courier New, monospace;
+    font-size: 100%;
+    font-weight: bold
+}
+
+ins {
+    color: green;
+}
+
+del {
+    color: red;
+}
+
+dt {
+    font-weight: bold
+}
+
+p.red {
+    color: red;
+}
+
+span.red {
+    color: red;
+}
+
+div.red {
+    color: red;
+}
+
+blockquote {
+    margin-left: 5%;
+    margin-right: 5%;
+    font-family: Times, serif;
+    font-style: italic;
+    text-align: left;
+    text-indent: 0px;
+}
+  </style>
+</head>
+<body>
+#+END_EXPORT
 * Claude Chat Interface (WordPress Plugin)
 
 [[https://img.shields.io/badge/version-VERSION-orange.svg][version]]
