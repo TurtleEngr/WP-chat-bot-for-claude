@@ -3,7 +3,7 @@ Contributors: TurtleEngr
 Tags: chat, chatbot, ai, claude, anthropic
 Tested up to: 7.1
 Stable tag: VERSION
-License: GPLv2 or later
+License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Add a Claude AI chat bot to any page or post with the [claude_chat] shortcode.

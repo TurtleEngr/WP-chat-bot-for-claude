@@ -1,6 +1,6 @@
 # Chat Bot For Claude (WordPress Plugin)
 
-![version](https://img.shields.io/badge/version-2.4.4-orange.svg)
+![version](https://img.shields.io/badge/version-2.5.0-orange.svg)
 
 ![WordPress](https://img.shields.io/badge/WordPress-Compatible-blue.svg)
 
@@ -50,7 +50,7 @@ Source: <https://github.com/TurtleEngr/WP-chat-bot-for-claude>
 2.  Or click on the lastest \"tag,\" select the \"Source code\" link to
     download the zip file, then unzip the file.
 3.  Run \"make build\" to build and create the zip package.
-4.  Install `dist/chat-bot-for-claude-2.4.4.zip`{.verbatim} plugin,
+4.  Install `dist/chat-bot-for-claude-2.5.0.zip`{.verbatim} plugin,
     with the above **Install Zip File** directions.
 
 ## Usage
@@ -76,10 +76,10 @@ configure the following options:
 -   **Prefix Prompt**: Define a prompt that is sent as the system prompt
     on every request.
 -   **Save Settings** button: Save the current settings.
--   **View Log** button: open the chat log (claude~log~.org) in a new
-    browser tab.
+-   **View Log** button: open the chat log (`claude_log.org`{.verbatim})
+    in a new browser tab.
 -   **Clear Logs** button: remove the text in the chat log
-    (claude~log~.org).
+    (`claude_log.org`{.verbatim}).
 
 The chat log is in the `chat-bot-for-claude-log`{.verbatim} directory,
 one level above the WordPress root (for example, above
@@ -113,10 +113,10 @@ Settings admin form.
 
 -   **cgClaudeChatMaxToolRounds**: 5
 
-    -   Max number of send/tool~result~ round trips. The response budget
-        is the primary stop condition; this is a backstop so a model
-        that keeps asking for cheap, fast fetches cannot loop
-        indefinitely inside the budget.
+    -   Max number of `send/tool_result`{.verbatim} round trips. The
+        response budget is the primary stop condition; this is a
+        backstop so a model that keeps asking for cheap, fast fetches
+        cannot loop indefinitely inside the budget.
 
 -   **cgClaudeChatMaxResponseBytes**: 4 MB
 
@@ -143,8 +143,9 @@ Settings admin form.
 
 ### Added: Prefix Prompt
 
-Registered in fClaudeChatRegisterSettings() with sanitize~textareafield~
-as its sanitize callback (multi-line safe).
+Registered in fClaudeChatRegisterSettings() with
+`sanitize_textarea_field`{.verbatim} as its sanitize callback
+(multi-line safe).
 
 Added at the bottom of the settings form via
 `fClaudeChatSettingsInit().`{.verbatim} It uses
@@ -152,16 +153,17 @@ Added at the bottom of the settings form via
 &lt;textarea\> (6 rows × 60 cols) with a description explaining the
 caching behaviour. Leaving it blank disables the feature entirely.
 
-**prefix + cache~control~** - `fClaudeChatApiRequest()`{.verbatim}
+prefix + `cache_control`{.verbatim} -
+`fClaudeChatApiRequest()`{.verbatim}
 
 When a prefix is saved, it is sent in the `system`{.verbatim} parameter,
 separate from the user message. Pre-fetched page text is added as a
 second system block.
 
-The cache~control~: ephemeral setting on the last system block tells
-Anthropic\'s API to cache the system prompt across repeated requests ---
-reducing latency and token cost for long prompts. The anthropic-beta:
-prompt-caching-2024-07-31 header is added automatically.
+The `cache_control`{.verbatim}: ephemeral setting on the last system
+block tells Anthropic\'s API to cache the system prompt across repeated
+requests --- reducing latency and token cost for long prompts. The
+anthropic-beta: prompt-caching-2024-07-31 header is added automatically.
 
 ### Minor improvements
 
@@ -203,11 +205,12 @@ needed.
     -   Model - Pick the model you want
     -   Max Tokens - Range: 1 to 8096
     -   Follow Links - checkbox
-        -   When checked, Claude may call the fetch~url~ tool to read
-            URLs named in the prompt or the user question. Each fetch
-            times out after 5s; the whole fetch loop stops after 20s and
-            answers with what it has. Adds an API round trip per batch
-            of fetches, so replies are slower and cost more tokens.
+        -   When checked, Claude may call the `fetch_url`{.verbatim}
+            tool to read URLs named in the prompt or the user question.
+            Each fetch times out after 5s; the whole fetch loop stops
+            after 20s and answers with what it has. Adds an API round
+            trip per batch of fetches, so replies are slower and cost
+            more tokens.
     -   List of pre-fetch URLs - textbox
         -   Optional. One URL per line, max 10. These are always fetched
             and added to the system prompt, whether or not Follow Links
@@ -215,14 +218,16 @@ needed.
             to 20,000 characters per page. Leave blank to disable.
     -   Prefix Prompt - textbox
         -   Optional. Sent as the system prompt on every request,
-            keeping it separate from user input. Uses cache~control~ to
-            save costs. Leave blank to disable. Max 65,536 bytes.
+            keeping it separate from user input. Uses
+            `cache_control`{.verbatim} to save costs. Leave blank to
+            disable. Max 65,536 bytes.
     -   Save Settings - Save any changes.
-    -   View Log - Open the chat log (claude~log~.org) in a new browser
-        tab.
-    -   Clear Logs - Remove the text in the chat log (claude~log~.org).
+    -   View Log - Open the chat log (`claude_log.org`{.verbatim}) in a
+        new browser tab.
+    -   Clear Logs - Remove the text in the chat log
+        (`claude_log.org`{.verbatim}).
         -   The chat log is at:
-            WP-ROOT/../chat-bot-for-claude-log/claude~log~.org
+            `WP-ROOT/../chat-bot-for-claude-log/claude_log.org`{.verbatim}
         -   Errors are written to the PHP error log.
 
 ## Support
@@ -232,32 +237,14 @@ on the GitHub repository.
 
 ## License
 
-This plugin is licensed under the [GPLv2 or
-later](https://www.gnu.org/licenses/gpl-2.0.html) license.
+This plugin is licensed under the
+[GPLv2](https://www.gnu.org/licenses/gpl-2.0.html) license.
 
 ## Copyright
 
-**Volkan Sah**
+TurtleEngr
 
-## Note on upsream repository
+## Note
 
-The repository
+This code was initially derived from:
 \[(VolkanSah/WP-Claude-Interface)\]\[<https://github.com/VolkanSah/WP-Claude-Interface>\]
-is archived. Most people just want a ready-made product and don\'t want
-to learn from boilerplates --- that\'s fine, but it\'s not what this was
-built for.
-
-If you need a real AI client for WordPress with full power behind it,
-check out [WP AI Hub](https://github.com/VolkanSah/WP-AI-HUB) --- a thin
-client for [Multi-LLM API
-Gateway](https://github.com/VolkanSah/Multi-LLM-API-Gateway).
-
-Why? Because with one hub on HuggingFace Spaces you can pull Claude via
-API into WordPress, route DeepSeek through OpenRouter, run Flux or Veo 3
-for image/video generation --- all at the same time, all through one
-connection. Not 20 different plugins to maintain, no annoying premium
-limits per plugin, no bloat. Just one hub, all your models, one
-WordPress client.
-
-Deploy your own hub, connect it via WP AI Hub --- and actually own your
-AI stack.

@@ -67,7 +67,7 @@
   <h1 id="chat-bot-for-claude-wordpress-plugin">Chat Bot For Claude
   (WordPress Plugin)</h1>
   <p><a href=
-  "https://img.shields.io/badge/version-2.4.4-orange.svg">version</a></p>
+  "https://img.shields.io/badge/version-2.5.0-orange.svg">version</a></p>
   <p><a href=
   "https://img.shields.io/badge/WordPress-Compatible-blue.svg">WordPress</a></p>
   <p>Integrate the Claude AI chat interface into your WordPress website using
@@ -117,7 +117,7 @@
     download the zip file, then unzip the file.</li>
     <li>Run "make build" to build and create the zip package.</li>
     <li>Install <code class=
-    "verbatim">dist/chat-bot-for-claude-2.4.4.zip</code> plugin, with the
+    "verbatim">dist/chat-bot-for-claude-2.5.0.zip</code> plugin, with the
     above <strong>Install Zip File</strong> directions.</li>
   </ol>
   <hr />
@@ -141,10 +141,10 @@
   <p><strong>Prefix Prompt</strong>: Define a prompt that is sent as the
   system prompt on every request.</p>
   <p><strong>Save Settings</strong> button: Save the current settings.</p>
-  <p><strong>View Log</strong> button: open the chat log
-  (claude<sub>log</sub>.org) in a new browser tab.</p>
+  <p><strong>View Log</strong> button: open the chat log (<code class=
+  "verbatim">claude_log.org</code>) in a new browser tab.</p>
   <p><strong>Clear Logs</strong> button: remove the text in the chat log
-  (claude<sub>log</sub>.org).</p>
+  (<code class="verbatim">claude_log.org</code>).</p>
   <p>The chat log is in the <code class=
   "verbatim">chat-bot-for-claude-log</code> directory, one level above the
   WordPress root (for example, above <code class=
@@ -169,10 +169,10 @@
   budget — a single large page can otherwise crowd out the Prefix Prompt and
   the user's actual question. */</p>
   <p><strong>cgClaudeChatMaxToolRounds</strong>: 5</p>
-  <p>Max number of send/tool<sub>result</sub> round trips. The response
-  budget is the primary stop condition; this is a backstop so a model that
-  keeps asking for cheap, fast fetches cannot loop indefinitely inside the
-  budget.</p>
+  <p>Max number of <code class="verbatim">send/tool_result</code> round
+  trips. The response budget is the primary stop condition; this is a
+  backstop so a model that keeps asking for cheap, fast fetches cannot loop
+  indefinitely inside the budget.</p>
   <p><strong>cgClaudeChatMaxResponseBytes</strong>: 4 MB</p>
   <p><strong>cgClaudeChatMaxLogDumpChars</strong>: 4 KB</p>
   <p><strong>cgClaudeChatMaxPrefixPrompt</strong>: 65 KB</p>
@@ -190,23 +190,24 @@
   <hr />
   <h2 id="enhancements">Enhancements</h2>
   <h3 id="added-prefix-prompt">Added: Prefix Prompt</h3>
-  <p>Registered in fClaudeChatRegisterSettings() with
-  sanitize<sub>textareafield</sub> as its sanitize callback (multi-line
-  safe).</p>
+  <p>Registered in fClaudeChatRegisterSettings() with <code class=
+  "verbatim">sanitize_textarea_field</code> as its sanitize callback
+  (multi-line safe).</p>
   <p>Added at the bottom of the settings form via <code class=
   "verbatim">fClaudeChatSettingsInit().</code> It uses <code class=
   "verbatim">fClaudeChatTextareaFieldCallback()</code> that renders a
   &amp;lt;textarea&gt; (6 rows × 60 cols) with a description explaining the
   caching behaviour. Leaving it blank disables the feature entirely.</p>
-  <p><strong>prefix + cache<sub>control</sub></strong> - <code class=
+  <p>prefix + <code class="verbatim">cache_control</code> - <code class=
   "verbatim">fClaudeChatApiRequest()</code></p>
   <p>When a prefix is saved, it is sent in the <code class=
   "verbatim">system</code> parameter, separate from the user message.
   Pre-fetched page text is added as a second system block.</p>
-  <p>The cache<sub>control</sub>: ephemeral setting on the last system block
-  tells Anthropic's API to cache the system prompt across repeated requests —
-  reducing latency and token cost for long prompts. The anthropic-beta:
-  prompt-caching-2024-07-31 header is added automatically.</p>
+  <p>The <code class="verbatim">cache_control</code>: ephemeral setting on
+  the last system block tells Anthropic's API to cache the system prompt
+  across repeated requests — reducing latency and token cost for long
+  prompts. The anthropic-beta: prompt-caching-2024-07-31 header is added
+  automatically.</p>
   <h3 id="minor-improvements">Minor improvements</h3>
   <p>The Model list is read from the Models API when the Settings page is
   displayed (see <strong>Claude Models</strong> above).</p>
@@ -248,11 +249,11 @@
   <p>Model - Pick the model you want</p>
   <p>Max Tokens - Range: 1 to 8096</p>
   <p>Follow Links - checkbox</p>
-  <p>When checked, Claude may call the fetch<sub>url</sub> tool to read URLs
-  named in the prompt or the user question. Each fetch times out after 5s;
-  the whole fetch loop stops after 20s and answers with what it has. Adds an
-  API round trip per batch of fetches, so replies are slower and cost more
-  tokens.</p>
+  <p>When checked, Claude may call the <code class=
+  "verbatim">fetch_url</code> tool to read URLs named in the prompt or the
+  user question. Each fetch times out after 5s; the whole fetch loop stops
+  after 20s and answers with what it has. Adds an API round trip per batch of
+  fetches, so replies are slower and cost more tokens.</p>
   <p>List of pre-fetch URLs - textbox</p>
   <p>Optional. One URL per line, max 10. These are always fetched and added
   to the system prompt, whether or not Follow Links is checked. Content is
@@ -260,15 +261,15 @@
   blank to disable.</p>
   <p>Prefix Prompt - textbox</p>
   <p>Optional. Sent as the system prompt on every request, keeping it
-  separate from user input. Uses cache<sub>control</sub> to save costs. Leave
-  blank to disable. Max 65,536 bytes.</p>
+  separate from user input. Uses <code class="verbatim">cache_control</code>
+  to save costs. Leave blank to disable. Max 65,536 bytes.</p>
   <p>Save Settings - Save any changes.</p>
-  <p>View Log - Open the chat log (claude<sub>log</sub>.org) in a new browser
-  tab.</p>
-  <p>Clear Logs - Remove the text in the chat log
-  (claude<sub>log</sub>.org).</p>
-  <p>The chat log is at:
-  WP-ROOT/../chat-bot-for-claude-log/claude<sub>log</sub>.org</p>
+  <p>View Log - Open the chat log (<code class=
+  "verbatim">claude_log.org</code>) in a new browser tab.</p>
+  <p>Clear Logs - Remove the text in the chat log (<code class=
+  "verbatim">claude_log.org</code>).</p>
+  <p>The chat log is at: <code class=
+  "verbatim">WP-ROOT/../chat-bot-for-claude-log/claude_log.org</code></p>
   <p>Errors are written to the PHP error log.</p>
   <hr />
   <h2 id="support">Support</h2>
@@ -277,29 +278,14 @@
   <hr />
   <h2 id="license">License</h2>
   <p>This plugin is licensed under the <a href=
-  "https://www.gnu.org/licenses/gpl-2.0.html">GPLv2 or later</a> license.</p>
+  "https://www.gnu.org/licenses/gpl-2.0.html">GPLv2</a> license.</p>
   <hr />
   <h2 id="copyright">Copyright</h2>
-  <p><strong>Volkan Sah</strong></p>
+  <p>TurtleEngr</p>
   <hr />
-  <h2 id="note-on-upsream-repository">Note on upsream repository</h2>
-  <p>The repository [(VolkanSah/WP-Claude-Interface)][<a href=
-  "https://github.com/VolkanSah/WP-Claude-Interface">https://github.com/VolkanSah/WP-Claude-Interface</a>]
-  is archived. Most people just want a ready-made product and don't want to
-  learn from boilerplates — that's fine, but it's not what this was built
-  for.</p>
-  <p>If you need a real AI client for WordPress with full power behind it,
-  check out <a href="https://github.com/VolkanSah/WP-AI-HUB">WP AI Hub</a> —
-  a thin client for <a href=
-  "https://github.com/VolkanSah/Multi-LLM-API-Gateway">Multi-LLM API
-  Gateway</a>.</p>
-  <p>Why? Because with one hub on HuggingFace Spaces you can pull Claude via
-  API into WordPress, route DeepSeek through OpenRouter, run Flux or Veo 3
-  for image/video generation — all at the same time, all through one
-  connection. Not 20 different plugins to maintain, no annoying premium
-  limits per plugin, no bloat. Just one hub, all your models, one WordPress
-  client.</p>
-  <p>Deploy your own hub, connect it via WP AI Hub — and actually own your AI
-  stack.</p>
+  <h2 id="note">Note</h2>
+  <p>This code was initially derived from:
+  [(VolkanSah/WP-Claude-Interface)][<a href=
+  "https://github.com/VolkanSah/WP-Claude-Interface">https://github.com/VolkanSah/WP-Claude-Interface</a>]</p>
 </body>
 </html>
