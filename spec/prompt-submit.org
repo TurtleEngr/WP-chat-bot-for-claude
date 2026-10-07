@@ -1,0 +1,330 @@
+* Submit Pluging to wordpress.org
+
+** Prompt 1
+
+- Update the php file claude-chat-bot.php and the readme.txt files to
+  comply with the "submition guidelines" that are define below.
+
+- Also, follow the directions in CLAUDE.org
+
+*** Submition Guidelines
++ https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/
++ https://developer.wordpress.org/plugins/plugin-basics/
++ https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/
++ https://wordpress.org/plugins/files/2016/06/readme.txt - syntax example
++ https://developer.wordpress.org/apis/security/
++ https://developer.wordpress.org/apis/security/escaping/
++ https://developer.wordpress.org/apis/security/nonces/ - for forms
+
+*** Code locations
++ The code for this plugin is at:
+  https://github.com/TurtleEngr/WP-claude-chat-bot
+
+** Response 1
+
+I'll pull the plugin from GitHub, review it against the WordPress.org
+guidelines, and send back complete updated `claude-chat-bot.php` and
+`readme.txt` files.
+
+Now the PHP edits, one guideline item at a time.
+
+Now the admin-page escaping.
+
+I've updated both files; `claude-chat-bot.php` and `readme.txt` are
+attached as complete files. Some guideline problems are still open
+(listed at the end).
+
+**Check results:** `php -l` reports no errors. I ran the WordPress
+Coding Standards security, escaping and input checks on the PHP
+file. The original had 6 errors and 8 warnings; the new file has 0
+errors and 3 warnings. All 3 warnings are for `file_put_contents()` on
+the log files, which are kept, and the reviewers may still comment on
+them (see the open problems).
+
+**Changes in `claude-chat-bot.php`**, each tied to a guideline:
+- **Plugin header:** added `License: GPLv2 or later`, `License URI`,
+  `Requires at least: 6.0` and `Requires PHP: 7.4`. Changed `Text
+  Domain` from `claude` to `claude-chat-bot` so it matches the slug,
+  and changed every `'claude-chat'` text-domain string to
+  `'claude-chat-bot'`.
+- **Settings sanitizing:** the API key, model, temperature and max
+  tokens settings had no sanitize callbacks; now they do.
+  - Model must be one of the entries in `cgClaudeChatModels`.
+  - Temperature is kept between 0 and 1; blank still means "not set".
+  - Max tokens is kept between 1 and 8096.
+- **Input:** `$_POST['message']`, `$_SERVER['REMOTE_ADDR']` and
+  `$_GET['logs-cleared']` now use `isset` + `wp_unslash` +
+  sanitize. An empty message returns an error.
+- **Output escaping:** the JS inserts Claude's reply with `.html()`,
+  so the server now passes it through `wp_kses_post()`. This keeps
+  normal HTML and removes scripts. The log links and help link now use
+  `esc_url`/`esc_html`, and the model dropdown uses `selected()`.
+- **Functions reviewers flag:**
+  - `print_r` → `wp_json_encode`
+  - `json_encode` → `wp_json_encode`
+  - `date` → `wp_date`
+  - `wp_redirect` → `wp_safe_redirect`
+  - `error_log(…, 3, file)` → `file_put_contents(…, FILE_APPEND | LOCK_EX)`
+  - The stylesheet is now loaded with a version number.
+- **Bug fix:** Clear Logs no longer writes to the log path when that
+  path couldn't be found.
+
+**Changes in `readme.txt`:**
+- **Header:** name now matches the plugin header ("Claude Chat
+  bot"). License is GPL. Tags cut to 5, with the generic "WordPress"
+  tag removed. Added a short description under 150 characters.
+- **New sections:**
+  - **External services:** says what is sent to Anthropic, when it's sent, and links to Anthropic's terms and privacy policy. It also covers the fetch_url and pre-fetch requests. Guideline 6 requires this.
+  - **Privacy:** says chats are logged.
+  - **FAQ:** the Q&A that was in the description.
+  - **Upgrade Notice.**
+- **Screenshots:** now captions only. The markdown image links don't
+  work there; the directory reads the images from `screenshot-1.png`
+  and `screenshot-2.png` in the SVN `assets/` folder.
+
+**Problems these two files can't fix (your call):**
+1. **License.** The `LICENSE` file is still DBAD, which isn't
+   GPL-compatible (guideline 1). I changed the license headers to
+   GPLv2+, but you'll need to replace `LICENSE` too. Check with
+   aicodecraft first if the original code is theirs.
+2. **Trademark.** Guideline 17 says a slug can't *start* with a
+   trademark you don't own, so `claude-chat-bot` will likely be
+   rejected. A name like "Chat Bot for Claude" (slug
+   `chat-bot-for-claude`) is the accepted pattern. Renaming means
+   changing the text domain again.
+3. **Public logs.** Visitor chats in `wp-content/uploads/claude/` can
+   be read from the web. I documented this rather than blocking it,
+   because the settings page links to those files. Reviewers may ask
+   for them to be protected.
+4. **"Tested up to".** I set it to 7.0, because the current 7.0
+   release notes don't point to a 7.1 release yet. Change it if 7.1 is
+   out.
+5. **Contributors.** `aicodecraft` and `turtle-engr` must be real
+   WordPress.org usernames.
+6. **Not changed, but noticed:**
+   - The Makefile builds `claude.php`, which doesn't exist (the file
+     is `claude-chat-bot.php`), so `make build` will fail.
+   - Several models in the model list are retired from the API.
+   - The question log uses a hardcoded `America/Los_Angeles` timezone.
+
+Sources: [Detailed Plugin
+Guidelines](https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/),
+[How your readme.txt
+works](https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/),
+[WordPress 7.0 release
+notes](https://wordpress.org/documentation/wordpress-version/version-7-0/)
+
+I didn't commit or push anything, because you declined push access to
+`TurtleEngr/WP-claude-chat-bot`. The changes are still uncommitted in
+my local copy of the repo, and the two updated files are the ones
+attached in my last message.
+
+How would you like to handle it? I could commit them locally on a new
+branch (for example `wp-org-guidelines`) and not push. You could also
+commit them yourself from the attached files. Or, if you want me to
+push, approve the access and tell me which branch to use; I'd suggest
+a new branch rather than `develop`.
+
+** Prompt 2
+
+- The code has been updated at:
+  https://github.com/TurtleEngr/WP-chat-bot-for-claude/tree/feature/submit-plugin
+
+1. In chat-bot-for-claude.php update the variable cgClaudeChatModels
+   with the latest supported models. For how, see:
+   https://platform.claude.com/docs/en/api/models/list
+
+2. Change the logging of errors to error_log(). Also, there is not
+   need to "clear" the error_log.
+
+3. Change the chat log file location to a directory above public_html,
+   so it cannot be accessed publically.
+   Direcory name: chat-bot-for-claude-log
+   File Name: claude_log.org
+
+4. Create a "View Log" button that will open a new browser tab and display
+   the file in the browser.
+
+5. The "Clear Logs" button now only need to remove the text in one
+   file: claude_log.org
+
+- The text and names in README.org and readme.txt should be consistent
+  with chat-bot-for-claude.php (README.md and README.html are
+  generated from README.org, so there is no need to modify those
+  files.)
+
+- Review the "Submition Guidelines" to make sure
+  chat-bot-for-claude.php and readme.txt are compliant.
+
+- Also, follow the directions in CLAUDE.org
+  
+- Do not make any changes to the repository; just return the modified
+  files in a zip file.
+
+*** Submition Guidelines
++ https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/
++ https://developer.wordpress.org/plugins/plugin-basics/
++ https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/
++ https://wordpress.org/plugins/files/2016/06/readme.txt - syntax example
++ https://developer.wordpress.org/apis/security/
++ https://developer.wordpress.org/apis/security/escaping/
++ https://developer.wordpress.org/apis/security/nonces/ - for forms
+
+** Response 2
+
+I'll pull the updated branch fresh and make the five changes. I won't
+touch the repo; the modified files come back in a zip.
+
+I have everything I need from the branch. Before editing I'll check
+the version number, the Makefile's publish paths, and whether
+WordPress 7.1 is out (for "Tested up to").
+
+Now Clear Logs, the new View Log handler, and the settings-page
+buttons.
+
+PHP lint passes, and the security checks show 0 errors. The 3 warnings
+are only the direct file calls for the chat log. Now a run-time test
+of the log functions with WordPress stubbed out.
+
+All five changes are made and tested, and the complete
+`chat-bot-for-claude.php`, `readme.txt` and `README.org` are in
+`chat-bot-for-claude-files.zip`. Nothing in the repo was changed.
+
+**Testing:** I ran the log code in a test with WordPress stubbed out,
+with WordPress in `/home/user/public_html`. The chat log was written
+to `/home/user/chat-bot-for-claude-log/claude_log.org`, and errors
+went to the PHP error log. View Log showed the file as text, and Clear
+Logs left only the `* Log` heading. `php -l` passes, and the WordPress
+security checks find 0 errors.
+
+**What changed:**
+1. **Models:** `cgClaudeChatModels` now lists 12 active models (Haiku
+   4.5; Sonnet 4.6–5.5; Opus 4.5–5.5; Fable 5 and 5.1). I couldn't
+   call the models list endpoint without an API key, so the list comes
+   from Anthropic's model docs. I left out the Mythos models (not
+   public) and Sonnet 4.5 (retiring Nov 30).
+2. **Errors:** they now go through `error_log()` with a
+   `chat-bot-for-claude -` prefix. `claude.log` and its clearing are
+   gone.
+3. **Chat log location:**
+   - The folder is `dirname(ABSPATH)/chat-bot-for-claude-log`, one
+     level above the WordPress root, set in a new `cgClaudeChatLogDir`
+     constant.
+   - This assumes WordPress is installed directly in `public_html`. If
+     it's in a subfolder such as `public_html/blog`, the log would
+     land inside `public_html`, and the constant needs changing.
+4. **View Log:** a button that opens the log in a new tab as plain
+   text. It's checked by a nonce and admin permission, so only admins
+   can see it.
+5. **Clear Logs:** now resets only `claude_log.org`. I kept the `*
+   Log` heading it already wrote.
+
+The settings page no longer shows the old public log links; it shows
+the log's file path instead.
+
+**Docs:**
+- `readme.txt`: updated the Privacy section, the feature list, the
+  2.5.0 changelog and the Upgrade Notice.
+- `README.org`:
+  - Fixed the "Chat Chat" title and replaced the model list.
+  - Corrected the zip and build names, and the CSS/JS file names.
+  - Described the log changes, added the new constants, and set
+    requirements to WP 6.0 / PHP 7.4 to match the header.
+  - Changed the License section from DBAD to GPL to match the new
+    `LICENSE`.
+  - Removed descriptions of the strip-prefix and add-on prompt code,
+    which no longer exists.
+
+**Things to decide or check:**
+- **Temperature will break the newer models.** Anthropic's docs say a
+  non-default temperature returns an error on Opus 4.7 and
+  later. Leave the Temperature setting blank for those, or tell me if
+  you want the code to skip it for them.
+- **Haiku 4.5 could be retired soon.** Its retirement date is "not
+  sooner than Oct 15, 2026". It's still active, but watch the
+  deprecations page.
+- **Old logs stay public after upgrading.** Existing sites still have
+  `wp-content/uploads/claude/`. The Upgrade Notice tells admins to
+  delete it; the code doesn't do it.
+- **Possible review comments:**
+  - Plugin Check will warn about `error_log()`; I added a phpcs:ignore
+    comment explaining why it's there.
+  - Writing outside the WordPress folder is unusual, so reviewers may
+    ask about it.
+  - The chat log still uses direct `file_put_contents()`/`readfile()`,
+    which produces 3 warnings.
+- **"Tested up to" is still 7.0.** WordPress 7.1 is out (7.1.1 is
+  being scheduled). Change it to 7.1 once you've tested on 7.1.
+- **Not changed, but noticed:** an unused `$homeUrl` variable in the
+  settings page, and the hardcoded `America/Los_Angeles` timezone in
+  the chat log.
+
+Sources:
+- [Models list API](https://platform.claude.com/docs/en/api/models/list)
+- [Model deprecations](https://platform.claude.com/docs/en/about-claude/model-deprecations)
+- [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview)
+- [WordPress 7.1.1 release schedule](https://make.wordpress.org/core/2026/09/02/wordpress-7-1-1-release-schedule/)
+- [WordPress 7.1 Release Candidate 1](https://wordpress.org/news/2026/08/wordpress-7-1-release-candidate-1/)
+  
+** Prompt 3
+
+- I ment for the cgClaudeChatModels variable to be dynamically updated
+  when the Settings Page is displayed. If possible the order would be
+  from newest to oldest. Please fix this in chat-bot-for-claude.php
+
+** Response 3
+
+I'll replace the fixed list with a live call to the Models API when the Settings page loads, sorted newest first. If there's no API key or the call fails, it falls back to a default list.
+
+A PHP `define()` constant can't change at run time. So `cgClaudeChatModels` becomes the fallback list, and a new `fClaudeChatGetModels()` gets the live list for the dropdown.
+
+Now lint, run the security checks, and test the new function with a stubbed API response (shuffled order, plus the failure case).
+
+The Model list on the Settings page is now read from Anthropic's Models API each time the page is displayed, newest model first. I tested it with a fake API response, not a real key, and in that test it sorted out-of-order models newest first.
+
+The updated files are in `chat-bot-for-claude-files.zip`, and the repo is still untouched. Lint passes and the security checks still show 0 errors.
+
+- **How it works:** a new function, `fClaudeChatGetModels()`, calls `GET https://api.anthropic.com/v1/models` with the saved API key. It sorts the result by release date, newest first, and fills the dropdown with the API's display names.
+- **Why `cgClaudeChatModels` is still there:** a PHP `define()` constant can't change while the plugin runs, so it is now the fallback list, also ordered newest first. It's used when there's no API key yet or the API call fails. In that case the page says the live list couldn't be loaded, and the error goes to the PHP error log.
+- **Saving the model:** the model is no longer checked against the list, because that would mean a second API call on every save. Instead it must look like a model ID (`claude-` followed by letters, numbers, dots or dashes). A retired model saved earlier will still pass this check; choosing a model from the new list replaces it.
+- **Docs, beyond what you asked:** the Settings page now contacts Anthropic, and guideline 6 requires every external call to be described in `readme.txt`. So I added one line to its External services section. I also changed README.org's Claude Models section to describe the live list and show the default list newest first.
+
+On the first visit, the dropdown can only load the live list after the API key has been entered and saved.
+
+** Prompt 4
+
+There is no need to make cgClaudeChatModels a fallback list. Remove
+that code and just set the pick list dynamically.
+
+** Response 4
+
+I'll remove the `cgClaudeChatModels` constant and its fallback, so the dropdown is filled only from the API.
+
+I removed `cgClaudeChatModels`, so the Model list is now filled only from the Anthropic API, newest first. The updated files are in `chat-bot-for-claude-files.zip`; the repo is still untouched.
+
+When the API can't be reached (no key, a bad key, or a network error), the list shows only the currently saved model, along with a note to enter or check the API Key. Without that, the list would be empty and pressing Save Settings would erase the saved model. On a brand-new install there's no saved model, so the list is empty until a key is entered and saved.
+
+I also changed README.org's Claude Models section to describe this and removed the old default model list from it. `readme.txt` didn't need changes.
+
+Lint passes and the security checks still show 0 errors. In a test with a fake API, a good key gave the sorted list, and a bad or missing key showed only the saved model with the note.
+
+** Prompt 5
+
+Since Temperature is not used for most models, please remove the from
+all placed in chat-bot-for-claude.php
+
+Also, remove references to temperature in README.org and readme.txt
+
+** Responce 5
+
+Now the docs.
+
+I've removed Temperature from all three files, and a search for "temperature" now finds nothing in any of them. The updated files are in `chat-bot-for-claude-files.zip`; the repo is still untouched.
+
+- **`chat-bot-for-claude.php`:** the setting, its sanitize function, the Settings page field, the read of the option, and the code that added it to the API request are all gone. In a test where an old temperature value was still saved, the request sent only the model, max tokens and message. Lint passes and the security checks still show 0 errors.
+- **`readme.txt`:** the feature line now reads "Choice of Claude model and max tokens."
+- **README.org:** removed the Temperature lines from Configuration and the Settings list, and the old "Fixed temperature…" note. The API-support feature line now says "model, max tokens, and more."
+
+I also changed one stale line in the `readme.txt` changelog to "The Model list is now read from the Anthropic Models API."
+
+Sites that already saved a temperature still have that value in the database. The plugin no longer reads it, so it's harmless, but the plugin has no uninstall cleanup to delete it.
