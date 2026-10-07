@@ -1,7 +1,7 @@
 === Chat Bot For Claude ===
-Contributors: turtleengr
+Contributors: TurtleEngr
 Tags: chat, chatbot, ai, claude, anthropic
-Tested up to: 7.0
+Tested up to: 7.1
 Stable tag: VERSION
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html

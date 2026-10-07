@@ -1,5 +1,10 @@
 * Submit Pluging to wordpress.org
 
+** Using svn
+
+https://developer.wordpress.org/plugins/wordpress-org/how-to-use-subversion/
+https://davidmatthew.ie/svn-on-the-command-line-for-wordpress/
+
 ** Prompt 1
 
 - Update the php file claude-chat-bot.php and the readme.txt files to
