@@ -1,7 +1,9 @@
 === Chat Bot For Claude ===
 Contributors: TurtleEngr
 Tags: chat, chatbot, ai, claude, anthropic
+Requires at least: 6.0
 Tested up to: 7.1
+Requires PHP: 8.0
 Stable tag: VERSION
 License: GPLv2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -28,7 +30,47 @@ Features:
 * Log of questions and answers, stored outside the web root, with
   "View Log" and "Clear Logs" buttons on the settings page.
 
-== External services ==
+== Installation ==
+
+1. Install and activate this plugin.
+2. Go to Settings > Claude Chat and enter your Anthropic API key, then
+   choose a model.
+3. Add the `[claude_chat]` shortcode to a page or post.
+4. On the page, let the user's know their questions and answers are
+   being logged, and how often the log is cleared.
+
+== Frequently Asked Questions ==
+
+= Where do I get the API key? =
+
+Create an account at https://console.anthropic.com/ and generate an
+API key there. API usage is billed by Anthropic to that account.
+
+= How do I display the chat interface? =
+
+Put the shortcode `[claude_chat]` on any page or post.
+
+= Where can I find more help? =
+
+See https://github.com/TurtleEngr/WP-chat-bot-for-claude
+
+= I have privacy concerns =
+
+Every visitor question and Claude's answer are saved to
+`chat-bot-for-claude-log/claude_log.org`, in the directory one level
+above the WordPress root (for example, above `public_html`), so the
+file cannot be read from the web. Administrators can open it with the
+"View Log" button on the settings page, and empty it with the "Clear
+Logs" button. The admin should tell users how long logs are kept.
+
+Errors (no visitor messages) are written to the PHP error log.
+
+A user's IP address is used only as an MD5-hashed key for the
+one-minute rate limit. It is not logged or sent to Anthropic.
+
+See "External Service" for more details.
+
+== External Service ==
 
 This plugin connects to the Anthropic Claude API to generate chat
 replies. It does nothing until an administrator enters an Anthropic
@@ -51,45 +93,6 @@ the site's server also makes HTTP GET requests to those web pages
 blocked). Only the URL is sent; no visitor data is included. The
 terms and privacy policy of each site you list apply.
 
-== Privacy ==
-
-Every visitor question and Claude's answer are saved to
-`chat-bot-for-claude-log/claude_log.org`, in the directory one level
-above the WordPress root (for example, above `public_html`), so the
-file cannot be read from the web. Administrators can open it with the
-"View Log" button on the settings page, and empty it with the "Clear
-Logs" button. Tell your visitors that chats are logged.
-
-Errors (no visitor messages) are written to the PHP error log with
-`error_log()`.
-
-The visitor's IP address is used only as an MD5-hashed key for the
-one-minute rate limit. It is not logged or sent to Anthropic.
-
-== Installation ==
-
-1. Upload the plugin zip with Plugins > Add New > Upload Plugin,
-   or install it from the WordPress plugin directory.
-2. Activate the plugin.
-3. Go to Settings > Claude Chat and enter your Anthropic API key,
-   then choose a model.
-4. Add the `[claude_chat]` shortcode to a page or post.
-
-== Frequently Asked Questions ==
-
-= How do I display the chat interface? =
-
-Put the shortcode `[claude_chat]` on any page or post.
-
-= Where do I get the API key? =
-
-Create an account at https://console.anthropic.com/ and generate an
-API key there. API usage is billed by Anthropic to that account.
-
-= Where can I find more help? =
-
-See https://github.com/TurtleEngr/WP-chat-bot-for-claude
-
 == Screenshots ==
 
 1. Admin settings page for Chat Bot For Claude.
@@ -97,7 +100,7 @@ See https://github.com/TurtleEngr/WP-chat-bot-for-claude
 
 == Changelog ==
 
-= 2.5.0 =
+= 2.5 =
 * Changes for WordPress.org plugin directory guidelines: GPL license,
   text domain, settings sanitizing, input sanitizing, output escaping.
 * Cleaned up build process.
@@ -147,6 +150,6 @@ See https://github.com/TurtleEngr/WP-chat-bot-for-claude
 == Upgrade Notice ==
 
 = 2.5.0 =
-License changed to GPLv2 or later. Chat log moved out of the web root.
-Delete the old public logs in wp-content/uploads/claude/ and choose a
-new model; the old models are retired.
+* License changed to GPLv2 or later. Chat log moved out of the web root.
+* Delete the old public logs in wp-content/uploads/claude/ and choose a
+  new model; the old models are retired.

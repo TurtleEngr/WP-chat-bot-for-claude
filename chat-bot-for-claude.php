@@ -2,15 +2,14 @@
 /*
  * Plugin Name: Chat Bot For Claude
  * Plugin URI: https://github.com/TurtleEngr/WP-chat-bot-for-claude
- * Description: Adds a Claude AI chat interface to your WordPress site using a shortcode.
+ * Description: Add a Claude AI chat interface to your WordPress site using a shortcode.
  * Version: VERSION
  * Requires at least: 6.0
- * Requires PHP: 7.4
+ * Requires PHP: 8.0
  * Author: TurtleEngr
  * Author URI: https://github.com/TurtleEngr
  * License: GPLv2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: chat-bot-for-claude
  */
 
 /* Lock out script kiddies: die an direct call */
