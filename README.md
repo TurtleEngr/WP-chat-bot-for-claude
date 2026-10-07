@@ -1,4 +1,4 @@
-# Chat Chat Bot For Claude (WordPress Plugin)
+# Chat Bot For Claude (WordPress Plugin)
 
 ![version](https://img.shields.io/badge/version-2.4.2-orange.svg)
 
@@ -9,15 +9,11 @@ a simple shortcode.
 
 ## Claude Models
 
-### Claude 3 Family:
-
--   **Claude 3 Haiku**: `claude-3-haiku-20240307`{.verbatim}
--   **Claude 3 Sonnet**: `claude-3-sonnet-20240229`{.verbatim}
--   **Claude 3 Opus**: `claude-3-opus-20240229`{.verbatim}
-
-### Claude 3.5 Family:
-
--   **Claude 3.5 Sonnet**: `claude-3-5-sonnet-20240620`{.verbatim}
+When the Settings page is displayed, the Model list is read from the
+Models API (<https://platform.claude.com/docs/en/api/models/list>),
+newest to oldest, using the saved API Key. If there is no API Key, or
+the API call fails, only the saved model is listed, with a note to enter
+or check the API Key.
 
 ## Features
 
@@ -38,7 +34,7 @@ a simple shortcode.
 ## Install Zip File
 
 1.  Download the latest zip file from:
-    [claude-chat-interface](https://moria.whyayh.com/rel/released/software/own/claude-chat-interface/)
+    [WP-chat-bot-for-claude](https://moria.whyayh.com/rel/released/software/own/WP-chat-bot-for-claude/)
 2.  At the WP plugin admin page, click on \"Add Plugin\", click on
     \"Upload Plugin\"
 3.  Browse to the zip file and select it, open, click on \"Install Now\"
@@ -53,9 +49,9 @@ Source: <https://github.com/TurtleEngr/WP-chat-bot-for-claude>
 1.  Clone this repo
 2.  Or click on the lastest \"tag,\" select the \"Source code\" link to
     download the zip file, then unzip the file.
-3.  Run \"make package\" to build and create the zip package.
-4.  Install `pkg/claude-chat-interface.zip`{.verbatim} plugin, with the
-    above **Install Zip File** directions.
+3.  Run \"make build\" to build and create the zip package.
+4.  Install `dist/chat-bot-for-claude-2.4.2.zip`{.verbatim} plugin,
+    with the above **Install Zip File** directions.
 
 ## Usage
 
@@ -79,12 +75,18 @@ configure the following options:
     followed.
 -   **List of pre-fetch URLs**: One URL per line. Each URL will be read
     and added to the prompts.
--   **Prefix Prompt**: Define a prompt that will be put before the
-    user\'s prompt.
--   **Save Setting** button: Save the current settings.
--   **Clear Logs** button: the chat and error logs will be cleared
--   Links below Clear Logs are links to the log files that can be
-    downloaded.
+-   **Prefix Prompt**: Define a prompt that is sent as the system prompt
+    on every request.
+-   **Save Settings** button: Save the current settings.
+-   **View Log** button: open the chat log (claude~log~.org) in a new
+    browser tab.
+-   **Clear Logs** button: remove the text in the chat log
+    (claude~log~.org).
+
+The chat log is in the `chat-bot-for-claude-log`{.verbatim} directory,
+one level above the WordPress root (for example, above
+`public_html`{.verbatim}), so it cannot be read from the web. Errors are
+written to the PHP error log with `error_log()`{.verbatim}.
 
 ## Customization
 
@@ -124,11 +126,20 @@ Settings admin form.
 
 -   **cgClaudeChatMaxPrefixPrompt**: 65 KB
 
+-   **cgClaudeChatLogDir**:
+    `dirname(ABSPATH) . '/chat-bot-for-claude-log'`{.verbatim}
+
+    -   The directory one level above the WordPress root. If WordPress
+        is installed in a subdirectory of `public_html`{.verbatim},
+        change this so the log is still outside the web root.
+
+-   **cgClaudeChatLogFile**: `claude_log.org`{.verbatim}
+
 -   **Styling**: Customize the chat interface by editing the
-    `css/claude-chat.css`{.verbatim} file.
+    `css/chat-bot-for-claude.css`{.verbatim} file.
 
 -   **JavaScript**: Add or modify functionality by editing the
-    `js/claude-chat.js`{.verbatim} file.
+    `js/chat-bot-for-claude.js`{.verbatim} file.
 
 ## Enhancements
 
@@ -145,39 +156,19 @@ caching behaviour. Leaving it blank disables the feature entirely.
 
 **prefix + cache~control~** - `fClaudeChatApiRequest()`{.verbatim}
 
-When a prefix is saved, the user message is sent as a two-block content
-array instead of a plain string.
+When a prefix is saved, it is sent in the `system`{.verbatim} parameter,
+separate from the user message. Pre-fetched page text is added as a
+second system block.
 
-The cache~control~: ephemeral block tells Anthropic\'s API to cache the
-prefix across repeated requests --- reducing latency and token cost for
-long system-style prompts. The anthropic-beta: prompt-caching-2024-07-31
-header is added automatically to enable this feature.
-
-**response cleanup** - `claude_chat_strip_prefix()`{.verbatim}
-
-After the API reply is received, this helper checks (case-insensitively)
-whether the response begins with the prefix text and strips it if so.
-Claude won\'t normally echo the prefix back, but this guards against
-edge cases where it does.
-
-**`claude.php`{.verbatim}**: Register 3 new options
-(`addon_prompt_enabled`{.verbatim},
-addon~promptlabel~=,=addon~prompttext~=), add a single settings field
-with a custom callback rendering all three controls, update the
-shortcode to conditionally render the user-form checkbox, and pass the
-addon prompt text to JS via=wp~localizescript~\`.
-
-**`js/claude-chat.js`{.verbatim}**: Before sending, check if the addon
-checkbox exists and is checked --- if so, append the addon prompt text
-(from the localized data) to the message.
-
-**`css/claude-chat.css`{.verbatim}**: Add a small style for the addon
-checkbox row in the user form.
+The cache~control~: ephemeral setting on the last system block tells
+Anthropic\'s API to cache the system prompt across repeated requests ---
+reducing latency and token cost for long prompts. The anthropic-beta:
+prompt-caching-2024-07-31 header is added automatically.
 
 ### Minor improvements
 
-Added newer models to `cgClaudeChatModels`{.verbatim} (Claude 3.5 Haiku,
-Claude 3.5 Sonnet Oct 2024, Claude 3.7 Sonnet).
+The Model list is read from the Models API when the Settings page is
+displayed (see **Claude Models** above).
 
 Fixed temperature to only be sent when it\'s actually set (previously 0
 would be silently dropped).
@@ -186,20 +177,21 @@ Bumped Max Tokens ceiling to 8096 to match modern model limits.
 
 ### js or css changes
 
-js/claude-chat.js --- The JavaScript only handles the chat UI: capturing
-the user\'s input, sending it to admin-ajax.php via AJAX, and displaying
-the response. None of that flow changed. The prefix prompt is added (and
-stripped) entirely on the PHP/server side, invisibly to the JS layer.
+js/chat-bot-for-claude.js --- The JavaScript only handles the chat UI:
+capturing the user\'s input, sending it to admin-ajax.php via AJAX, and
+displaying the response. None of that flow changed. The prefix prompt is
+added (and stripped) entirely on the PHP/server side, invisibly to the
+JS layer.
 
-css/claude-chat.css --- The new Prefix Prompt field in the admin
+css/chat-bot-for-claude.css --- The new Prefix Prompt field in the admin
 settings form uses standard WordPress admin classes (large-text, code,
 description) that are already styled by WordPress core. No custom CSS is
 needed.
 
 ## Requirements
 
--   **WordPress**: Version 5.0 or higher. (tested with 6.9.4)
--   **PHP**: Version 7.0 or higher. (tested with 8.3.30)
+-   **WordPress**: Version 6.0 or higher. (tested with 6.9.4)
+-   **PHP**: Version 7.4 or higher. (tested with 8.3.30)
 -   **Claude API Key**: A valid Claude API key is required.
 
 ### Screenshots
@@ -232,10 +224,12 @@ needed.
             keeping it separate from user input. Uses cache~control~ to
             save costs. Leave blank to disable. Max 65,536 bytes.
     -   Save Settings - Save any changes.
-    -   Clear Logs - This button will clear the user and error logs.
-        -   Before clearing the logs, they can be viewed at:
-        -   <https://WP-HOME/wp-content/uploads/claude/claude_log.org>
-        -   <https://WP-HOME/wp-content/uploads/claude/claude.log>
+    -   View Log - Open the chat log (claude~log~.org) in a new browser
+        tab.
+    -   Clear Logs - Remove the text in the chat log (claude~log~.org).
+        -   The chat log is at:
+            WP-ROOT/../chat-bot-for-claude-log/claude~log~.org
+        -   Errors are written to the PHP error log.
 
 ## Support
 
@@ -244,8 +238,8 @@ on the GitHub repository.
 
 ## License
 
-This plugin is licensed under the [DBAD
-License](https://dbad-license.org/)
+This plugin is licensed under the [GPLv2 or
+later](https://www.gnu.org/licenses/gpl-2.0.html) license.
 
 ## Copyright
 
