@@ -25,8 +25,8 @@ Features:
 * Optional list of pre-fetch URLs whose text is added to the system
   prompt (cached for one hour).
 * Per-IP rate limit of 10 requests per minute.
-* Log of questions and answers, viewable and clearable from the
-  settings page.
+* Log of questions and answers, stored outside the web root, with
+  "View Log" and "Clear Logs" buttons on the settings page.
 
 == External services ==
 
@@ -39,6 +39,9 @@ API key on the settings page.
 * Data sent: the visitor's message, the Prefix Prompt, any pre-fetched
   page text, the selected model and settings, and the site's API key.
   The visitor's IP address is not sent.
+* Also: each time an administrator opens the settings page, the
+  plugin sends the API key to https://api.anthropic.com/v1/models to
+  get the list of models that key can use. No visitor data is sent.
 * Anthropic Commercial Terms: https://www.anthropic.com/legal/commercial-terms
 * Anthropic Privacy Policy: https://www.anthropic.com/legal/privacy
 
@@ -51,11 +54,14 @@ terms and privacy policy of each site you list apply.
 == Privacy ==
 
 Every visitor question and Claude's answer are saved to
-`wp-content/uploads/claude/claude_log.org`. API errors are saved to
-`wp-content/uploads/claude/claude.log`. Files in the uploads
-directory may be readable from the web, so tell your visitors that
-chats are logged, and use the "Clear Logs" button on the settings
-page to delete the logs.
+`chat-bot-for-claude-log/claude_log.org`, in the directory one level
+above the WordPress root (for example, above `public_html`), so the
+file cannot be read from the web. Administrators can open it with the
+"View Log" button on the settings page, and empty it with the "Clear
+Logs" button. Tell your visitors that chats are logged.
+
+Errors (no visitor messages) are written to the PHP error log with
+`error_log()`.
 
 The visitor's IP address is used only as an MD5-hashed key for the
 one-minute rate limit. It is not logged or sent to Anthropic.
@@ -95,6 +101,11 @@ See https://github.com/TurtleEngr/WP-chat-bot-for-claude
 * Changes for WordPress.org plugin directory guidelines: GPL license,
   text domain, settings sanitizing, input sanitizing, output escaping.
 * Cleaned up build process.
+* Updated the model list to the current Claude models.
+* The chat log moved to `chat-bot-for-claude-log/claude_log.org`,
+  above the WordPress root, so it is not public.
+* Added a "View Log" button. "Clear Logs" now clears only the chat log.
+* Errors are now written to the PHP error log.
 
 = 2.3 =
 * Put version number on pages.
@@ -136,5 +147,6 @@ See https://github.com/TurtleEngr/WP-chat-bot-for-claude
 == Upgrade Notice ==
 
 = 2.5.0 =
-License changed to GPLv2 or later. Settings values are now validated
-when saved.
+License changed to GPLv2 or later. Chat log moved out of the web root.
+Delete the old public logs in wp-content/uploads/claude/ and choose a
+new model; the old models are retired.

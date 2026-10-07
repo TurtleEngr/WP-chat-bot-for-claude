@@ -127,7 +127,7 @@ a new branch rather than `develop`.
 
 ** Prompt 2
 
-- The code can now be found at:
+- The code has been updated at:
   https://github.com/TurtleEngr/WP-chat-bot-for-claude/tree/feature/submit-plugin
 
 1. In chat-bot-for-claude.php update the variable cgClaudeChatModels
@@ -169,3 +169,142 @@ a new branch rather than `develop`.
 + https://developer.wordpress.org/apis/security/
 + https://developer.wordpress.org/apis/security/escaping/
 + https://developer.wordpress.org/apis/security/nonces/ - for forms
+
+** Response 2
+
+I'll pull the updated branch fresh and make the five changes. I won't
+touch the repo; the modified files come back in a zip.
+
+I have everything I need from the branch. Before editing I'll check
+the version number, the Makefile's publish paths, and whether
+WordPress 7.1 is out (for "Tested up to").
+
+Now Clear Logs, the new View Log handler, and the settings-page
+buttons.
+
+PHP lint passes, and the security checks show 0 errors. The 3 warnings
+are only the direct file calls for the chat log. Now a run-time test
+of the log functions with WordPress stubbed out.
+
+All five changes are made and tested, and the complete
+`chat-bot-for-claude.php`, `readme.txt` and `README.org` are in
+`chat-bot-for-claude-files.zip`. Nothing in the repo was changed.
+
+**Testing:** I ran the log code in a test with WordPress stubbed out,
+with WordPress in `/home/user/public_html`. The chat log was written
+to `/home/user/chat-bot-for-claude-log/claude_log.org`, and errors
+went to the PHP error log. View Log showed the file as text, and Clear
+Logs left only the `* Log` heading. `php -l` passes, and the WordPress
+security checks find 0 errors.
+
+**What changed:**
+1. **Models:** `cgClaudeChatModels` now lists 12 active models (Haiku
+   4.5; Sonnet 4.6–5.5; Opus 4.5–5.5; Fable 5 and 5.1). I couldn't
+   call the models list endpoint without an API key, so the list comes
+   from Anthropic's model docs. I left out the Mythos models (not
+   public) and Sonnet 4.5 (retiring Nov 30).
+2. **Errors:** they now go through `error_log()` with a
+   `chat-bot-for-claude -` prefix. `claude.log` and its clearing are
+   gone.
+3. **Chat log location:**
+   - The folder is `dirname(ABSPATH)/chat-bot-for-claude-log`, one
+     level above the WordPress root, set in a new `cgClaudeChatLogDir`
+     constant.
+   - This assumes WordPress is installed directly in `public_html`. If
+     it's in a subfolder such as `public_html/blog`, the log would
+     land inside `public_html`, and the constant needs changing.
+4. **View Log:** a button that opens the log in a new tab as plain
+   text. It's checked by a nonce and admin permission, so only admins
+   can see it.
+5. **Clear Logs:** now resets only `claude_log.org`. I kept the `*
+   Log` heading it already wrote.
+
+The settings page no longer shows the old public log links; it shows
+the log's file path instead.
+
+**Docs:**
+- `readme.txt`: updated the Privacy section, the feature list, the
+  2.5.0 changelog and the Upgrade Notice.
+- `README.org`:
+  - Fixed the "Chat Chat" title and replaced the model list.
+  - Corrected the zip and build names, and the CSS/JS file names.
+  - Described the log changes, added the new constants, and set
+    requirements to WP 6.0 / PHP 7.4 to match the header.
+  - Changed the License section from DBAD to GPL to match the new
+    `LICENSE`.
+  - Removed descriptions of the strip-prefix and add-on prompt code,
+    which no longer exists.
+
+**Things to decide or check:**
+- **Temperature will break the newer models.** Anthropic's docs say a
+  non-default temperature returns an error on Opus 4.7 and
+  later. Leave the Temperature setting blank for those, or tell me if
+  you want the code to skip it for them.
+- **Haiku 4.5 could be retired soon.** Its retirement date is "not
+  sooner than Oct 15, 2026". It's still active, but watch the
+  deprecations page.
+- **Old logs stay public after upgrading.** Existing sites still have
+  `wp-content/uploads/claude/`. The Upgrade Notice tells admins to
+  delete it; the code doesn't do it.
+- **Possible review comments:**
+  - Plugin Check will warn about `error_log()`; I added a phpcs:ignore
+    comment explaining why it's there.
+  - Writing outside the WordPress folder is unusual, so reviewers may
+    ask about it.
+  - The chat log still uses direct `file_put_contents()`/`readfile()`,
+    which produces 3 warnings.
+- **"Tested up to" is still 7.0.** WordPress 7.1 is out (7.1.1 is
+  being scheduled). Change it to 7.1 once you've tested on 7.1.
+- **Not changed, but noticed:** an unused `$homeUrl` variable in the
+  settings page, and the hardcoded `America/Los_Angeles` timezone in
+  the chat log.
+
+Sources:
+- [Models list API](https://platform.claude.com/docs/en/api/models/list)
+- [Model deprecations](https://platform.claude.com/docs/en/about-claude/model-deprecations)
+- [Models overview](https://platform.claude.com/docs/en/about-claude/models/overview)
+- [WordPress 7.1.1 release schedule](https://make.wordpress.org/core/2026/09/02/wordpress-7-1-1-release-schedule/)
+- [WordPress 7.1 Release Candidate 1](https://wordpress.org/news/2026/08/wordpress-7-1-release-candidate-1/)
+  
+** Prompt 3
+
+- I ment for the cgClaudeChatModels variable to be dynamically updated
+  when the Settings Page is displayed. If possible the order would be
+  from newest to oldest. Please fix this in chat-bot-for-claude.php
+
+** Response 3
+
+I'll replace the fixed list with a live call to the Models API when the Settings page loads, sorted newest first. If there's no API key or the call fails, it falls back to a default list.
+
+A PHP `define()` constant can't change at run time. So `cgClaudeChatModels` becomes the fallback list, and a new `fClaudeChatGetModels()` gets the live list for the dropdown.
+
+Now lint, run the security checks, and test the new function with a stubbed API response (shuffled order, plus the failure case).
+
+The Model list on the Settings page is now read from Anthropic's Models API each time the page is displayed, newest model first. I tested it with a fake API response, not a real key, and in that test it sorted out-of-order models newest first.
+
+The updated files are in `chat-bot-for-claude-files.zip`, and the repo is still untouched. Lint passes and the security checks still show 0 errors.
+
+- **How it works:** a new function, `fClaudeChatGetModels()`, calls `GET https://api.anthropic.com/v1/models` with the saved API key. It sorts the result by release date, newest first, and fills the dropdown with the API's display names.
+- **Why `cgClaudeChatModels` is still there:** a PHP `define()` constant can't change while the plugin runs, so it is now the fallback list, also ordered newest first. It's used when there's no API key yet or the API call fails. In that case the page says the live list couldn't be loaded, and the error goes to the PHP error log.
+- **Saving the model:** the model is no longer checked against the list, because that would mean a second API call on every save. Instead it must look like a model ID (`claude-` followed by letters, numbers, dots or dashes). A retired model saved earlier will still pass this check; choosing a model from the new list replaces it.
+- **Docs, beyond what you asked:** the Settings page now contacts Anthropic, and guideline 6 requires every external call to be described in `readme.txt`. So I added one line to its External services section. I also changed README.org's Claude Models section to describe the live list and show the default list newest first.
+
+On the first visit, the dropdown can only load the live list after the API key has been entered and saved.
+
+** Prompt 4
+
+There is no need to make cgClaudeChatModels a fallback list. Remove
+that code and just set the pick list dynamically.
+
+** Response 4
+
+I'll remove the `cgClaudeChatModels` constant and its fallback, so the dropdown is filled only from the API.
+
+I removed `cgClaudeChatModels`, so the Model list is now filled only from the Anthropic API, newest first. The updated files are in `chat-bot-for-claude-files.zip`; the repo is still untouched.
+
+When the API can't be reached (no key, a bad key, or a network error), the list shows only the currently saved model, along with a note to enter or check the API Key. Without that, the list would be empty and pressing Save Settings would erase the saved model. On a brand-new install there's no saved model, so the list is empty until a key is entered and saved.
+
+I also changed README.org's Claude Models section to describe this and removed the old default model list from it. `readme.txt` didn't need changes.
+
+Lint passes and the security checks still show 0 errors. In a test with a fake API, a good key gave the sorted list, and a bad or missing key showed only the saved model with the note.
+

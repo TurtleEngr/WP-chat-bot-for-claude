@@ -31,16 +31,6 @@ if (! defined('ABSPATH')) {
  * ========================================
  */
  
-/* Define the available models */
-define('cgClaudeChatModels', [
-        'claude-3-haiku-20240307'      => 'Claude 3.0 Haiku',
-        'claude-3-5-haiku-20241022'    => 'Claude 3.5 Haiku',
-        'claude-haiku-4-5-20251001'    => 'Claude 4.5 Haiku',
-        'claude-3-5-sonnet-20241022'   => 'Claude 3.5 Sonnet',
-        'claude-3-7-sonnet-20250219'   => 'Claude 3.7 Sonnet',
-        'claude-sonnet-4-5-20250929'   => 'Claude 4.5 Sonnet',
-    ]);
-
 /*
  * (memory): Tunable limits to protect against pathological inputs and
  * responses. Raising these should only be necessary if a legitimate use case
@@ -53,7 +43,7 @@ define('cgClaudeChatModels', [
  */
 define('cgClaudeChatMaxResponseBytes', 4 * 1024 * 1024); /* 4 MB */
 
-/* Max characters dumped into claude.log when an API error occurs. The raw
+/* Max characters dumped into the PHP error log when an API error occurs. The raw
  * response body is *not* a useful debugging aid past the first few KB, and
  * we don't want a single bad response to fill the disk or hold a huge
  * string in memory.
@@ -104,6 +94,15 @@ define('cgClaudeChatMaxToolRounds', 5);
 define('cgClaudeChatPreFetchTtl', 3600); /* 1 hour */
 define('cgClaudeChatMaxPreFetchUrls', 10);
 
+/* Chat log location. The directory is one level above the WordPress
+ * root (ABSPATH), e.g. /home/user/chat-bot-for-claude-log when
+ * WordPress is in /home/user/public_html, so the web server cannot
+ * serve it. If WordPress is installed in a subdirectory of
+ * public_html, change cgClaudeChatLogDir.
+ */
+define('cgClaudeChatLogDir', dirname(ABSPATH) . '/chat-bot-for-claude-log');
+define('cgClaudeChatLogFile', 'claude_log.org');
+
 /*
  * ========================================
  * Register settings
@@ -139,11 +138,13 @@ function fClaudeChatRegisterSettings() {
 add_action('admin_init', 'fClaudeChatRegisterSettings');
 
 /*
- * Only accept a model id that is in cgClaudeChatModels.
+ * Only accept a well-formed model id, e.g. claude-opus-5-5. The list
+ * itself comes from the API (fClaudeChatGetModels()), so it is not
+ * fetched again on save.
  */
 function fClaudeChatSanitizeModel( $value ) {
     $value = sanitize_text_field( (string) $value );
-    return array_key_exists( $value, cgClaudeChatModels ) ? $value : '';
+    return preg_match( '/^claude-[a-z0-9.-]+$/', $value ) ? $value : '';
 }
 
 /*
@@ -339,24 +340,14 @@ add_action('wp_ajax_nopriv_claude_chat', 'fClaudeChatAjaxHandler');
  */
 
 /*
- * Returns the absolute filesystem path to a file inside the claude uploads
- * subdirectory, creating the directory if it does not yet exist.
+ * Returns the absolute filesystem path to the chat log file
+ * (cgClaudeChatLogDir/cgClaudeChatLogFile), creating the directory if
+ * it does not yet exist.
  *
- *                            (default: 'claude')
- *
- * @param string  $log_subdir Subdirectory name inside wp-content/uploads/
- * @param string  $log_file   Filename inside that subdirectory.
  * @return string|false       Absolute path on success, false on failure.
  */
-function fClaudeChatGetLogPath( $log_subdir = 'claude', $log_file = '' ) {
-    $upload_info = wp_upload_dir();
-
-    if ( ! empty( $upload_info['error'] ) ) {
-        return false;
-    }
-
-    /* e.g. /var/www/html/wp-content/uploads/claude */
-    $dir = trailingslashit( $upload_info['basedir'] ) . $log_subdir;
+function fClaudeChatGetLogPath() {
+    $dir = cgClaudeChatLogDir;
 
     if ( ! is_dir( $dir ) ) {
         /* wp_mkdir_p() creates intermediate directories and returns
@@ -366,7 +357,7 @@ function fClaudeChatGetLogPath( $log_subdir = 'claude', $log_file = '' ) {
         }
     }
 
-    return $log_file !== '' ? trailingslashit( $dir ) . $log_file : $dir;
+    return trailingslashit( $dir ) . cgClaudeChatLogFile;
 }
 
 
@@ -377,7 +368,7 @@ function fClaudeChatGetLogPath( $log_subdir = 'claude', $log_file = '' ) {
  * clamped to $max_chars characters with a trailing marker noting the
  * original length. This prevents a large API error payload — e.g. an
  * HTML error page from a misrouted request — from being held in PHP
- * memory and then appended to claude.log in full.
+ * memory and then written to the PHP error log in full.
  *
  * @param mixed $value     The value to render.
  * @param int   $max_chars Maximum characters in the returned string.
@@ -409,10 +400,7 @@ function fClaudeChatTruncateForLog( $value, $max_chars = cgClaudeChatMaxLogDumpC
  * @param string  $response The text returned by the Claude API.
  */
 function fClaudeChatLogMessage( $message, $response ) {
-    $log_subdir = 'claude';
-    $log_file   = 'claude_log.org';
-
-    $path = fClaudeChatGetLogPath( $log_subdir, $log_file );
+    $path = fClaudeChatGetLogPath();
     if ( $path === false ) {
         return; /* Could not resolve / create the directory — fail silently. */
     }
@@ -430,22 +418,16 @@ function fClaudeChatLogMessage( $message, $response ) {
 
 
 /*
- * Appends an error entry to claude.log inside the same uploads subdirectory.
+ * Writes an error entry to the PHP error log (error_log()). Where that
+ * goes is set by the server's PHP error_log setting, or by
+ * WP_DEBUG_LOG (wp-content/debug.log).
  *
  * @param string  $error_type    Short label, e.g. 'HTTP Error', 'API Error'.
  * @param string  $error_message Full error detail.
  */
 function fClaudeChatLogError( $error_type, $error_message ) {
-    $log_subdir = 'claude';
-    $log_file   = 'claude.log';
-
-    $path = fClaudeChatGetLogPath( $log_subdir, $log_file );
-    if ( $path === false ) {
-        return;
-    }
-
-    $log_message = wp_date( 'Y-m-d H:i:s' ) . " - {$error_type}: {$error_message}\n";
-    file_put_contents( $path, $log_message, FILE_APPEND | LOCK_EX );
+    // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentional run-time error logging.
+    error_log( "chat-bot-for-claude - {$error_type}: {$error_message}" );
 }
 
 /*
@@ -625,6 +607,56 @@ function fClaudeChatFetchUrl_tool_spec() {
  * ========================================
  */
 
+
+/*
+ * Get the models the saved API key can use, from the Models API.
+ * Called when the Settings page is displayed.
+ *
+ * Returns id => display_name, newest to oldest (sorted by created_at),
+ * or false when there is no API key or the call fails (already logged).
+ */
+function fClaudeChatGetModels() {
+    $api_key = get_option('claude_chat_api_key');
+    if ( empty( $api_key ) ) {
+        return false;
+    }
+
+    $response = wp_remote_get( 'https://api.anthropic.com/v1/models?limit=1000', array(
+            'headers' => array(
+                'x-api-key'         => $api_key,
+                'anthropic-version' => '2023-06-01',
+            ),
+            'timeout' => 10,
+        ) );
+
+    if ( is_wp_error( $response ) ) {
+        fClaudeChatLogError( 'Models Error', $response->get_error_message() );
+        return false;
+    }
+
+    $data = json_decode( wp_remote_retrieve_body( $response ), true );
+    if ( ! is_array( $data ) || ! isset( $data['data'] ) || ! is_array( $data['data'] ) ) {
+        fClaudeChatLogError( 'Models Error', fClaudeChatTruncateForLog( $data ) );
+        return false;
+    }
+
+    $list = $data['data'];
+    usort( $list, function ( $a, $b ) {
+        $ta = isset( $a['created_at'] ) ? strtotime( $a['created_at'] ) : 0;
+        $tb = isset( $b['created_at'] ) ? strtotime( $b['created_at'] ) : 0;
+        return $tb - $ta;
+    } );
+
+    $models = array();
+    foreach ( $list as $model ) {
+        if ( empty( $model['id'] ) ) {
+            continue;
+        }
+        $models[ $model['id'] ] = ! empty( $model['display_name'] ) ? $model['display_name'] : $model['id'];
+    }
+
+    return empty( $models ) ? false : $models;
+}
 
 /*
  * Collect every text block from an API response.
@@ -927,8 +959,9 @@ function fClaudeChatApiRequest( $message ) {
 
 /*
  * Clear Logs handler
- * Deletes claude_log.org and claude.log, then redirects back to the
- * settings page with a confirmation flag.
+ * Removes the text in claude_log.org (leaving only the "* Log"
+ * heading), then redirects back to the settings page with a
+ * confirmation flag.
  */
 function fClaudeChatClearLogs() {
     if ( ! current_user_can('manage_options') ) {
@@ -936,14 +969,8 @@ function fClaudeChatClearLogs() {
     }
     check_admin_referer('fClaudeChatClearLogs_action', 'fClaudeChatClearLogs_nonce');
 
-    foreach ( array('claude_log.org', 'claude.log') as $log_file ) {
-        $path = fClaudeChatGetLogPath('claude', $log_file);
-        if ( ! $path ) {
-            continue;
-        }
-        if ( file_exists($path) ) {
-            wp_delete_file($path);
-        }
+    $path = fClaudeChatGetLogPath();
+    if ( $path ) {
         file_put_contents( $path, "* Log\n", LOCK_EX );
     }
 
@@ -954,6 +981,34 @@ function fClaudeChatClearLogs() {
     exit;
 }
 add_action('admin_post_fClaudeChatClearLogs', 'fClaudeChatClearLogs');
+
+/*
+ * View Log handler
+ * Sends claude_log.org to the browser as plain text. Opened in a new
+ * tab by the "View Log" button on the settings page. Plain text with
+ * nosniff means the browser shows the log as text and never runs it
+ * as HTML.
+ */
+function fClaudeChatViewLog() {
+    if ( ! current_user_can('manage_options') ) {
+        wp_die( esc_html__('Unauthorized', 'chat-bot-for-claude') );
+    }
+    check_admin_referer('fClaudeChatViewLog_action');
+
+    $path = fClaudeChatGetLogPath();
+
+    nocache_headers();
+    header('Content-Type: text/plain; charset=utf-8');
+    header('X-Content-Type-Options: nosniff');
+
+    if ( $path && file_exists($path) ) {
+        readfile( $path );
+    } else {
+        echo "* Log\n";
+    }
+    exit;
+}
+add_action('admin_post_fClaudeChatViewLog', 'fClaudeChatViewLog');
 
 
 /*
@@ -987,7 +1042,7 @@ function fClaudeChatSettingsPage_html() {
         ?>
         <?php if ( $logs_cleared === '1' ) : ?>
         <div class="notice notice-success is-dismissible">
-            <p><?php esc_html_e('Log files cleared successfully.', 'chat-bot-for-claude'); ?></p>
+            <p><?php esc_html_e('Chat log cleared successfully.', 'chat-bot-for-claude'); ?></p>
         </div>
         <?php endif; ?>
 
@@ -1003,14 +1058,20 @@ function fClaudeChatSettingsPage_html() {
               style="margin-top:12px;">
             <input type="hidden" name="action" value="fClaudeChatClearLogs">
             <?php wp_nonce_field('fClaudeChatClearLogs_action', 'fClaudeChatClearLogs_nonce'); ?>
-            <?php submit_button('Clear Logs', 'delete', 'fClaudeChatClearLogs_submit', false);
-            $log_url = home_url('/wp-content/uploads/claude/claude_log.org');
-            $err_url = home_url('/wp-content/uploads/claude/claude.log');
-            echo '<p>Before clearing the logs, they can be viewed at:<br>';
-            echo '<a href="' . esc_url($log_url) . '" target="_blank">';
-            echo esc_html($log_url) . '</a><br>';
-            echo '<a href="' . esc_url($err_url) . '" target="_blank">';
-            echo esc_html($err_url) . '</a></p>';
+            <?php
+            $view_url = wp_nonce_url(
+                admin_url('admin-post.php?action=fClaudeChatViewLog'),
+                'fClaudeChatViewLog_action'
+            );
+            echo '<a href="' . esc_url($view_url) . '" class="button" target="_blank" rel="noopener">'
+                . esc_html__('View Log', 'chat-bot-for-claude') . '</a> ';
+            submit_button('Clear Logs', 'delete', 'fClaudeChatClearLogs_submit', false);
+            echo '<p class="description">'
+                . esc_html__('Chat log file:', 'chat-bot-for-claude') . ' '
+                . esc_html(trailingslashit(cgClaudeChatLogDir) . cgClaudeChatLogFile)
+                . '<br>'
+                . esc_html__('Errors are written to the PHP error log.', 'chat-bot-for-claude')
+                . '</p>';
             ?>
         </form>
     </div>
@@ -1180,10 +1241,20 @@ function fClaudeChatCheckboxFieldCallback($args) {
 
 function fClaudeChatDropdownCallback($args) {
     $selected_model = get_option($args['label_for']);
+
+    /* Get the current list from the API. If that fails, list only the
+       saved model, so Save Settings does not clear it. */
+    $models = fClaudeChatGetModels();
+    if ( $models === false ) {
+        $models = empty($selected_model) ? array() : array($selected_model => $selected_model);
+        $args['description'] = 'Could not get the model list from the Anthropic API. '
+                             . 'Enter or check the API Key, then Save Settings.';
+    }
+
     echo '<select id="'   . esc_attr($args['label_for'])
         . '" name="'       . esc_attr($args['label_for'])
         . '" class="regular-text">';
-    foreach (cgClaudeChatModels as $model_key => $model_name) {
+    foreach ($models as $model_key => $model_name) {
         echo '<option value="' . esc_attr($model_key) . '" ' . selected($selected_model, $model_key, false) . '>'
             . esc_html($model_name) . '</option>';
     }
