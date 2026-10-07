@@ -1,6 +1,6 @@
 # Chat Bot For Claude (WordPress Plugin)
 
-![version](https://img.shields.io/badge/version-2.4.2-orange.svg)
+![version](https://img.shields.io/badge/version-2.4.3-orange.svg)
 
 ![WordPress](https://img.shields.io/badge/WordPress-Compatible-blue.svg)
 
@@ -50,7 +50,7 @@ Source: <https://github.com/TurtleEngr/WP-chat-bot-for-claude>
 2.  Or click on the lastest \"tag,\" select the \"Source code\" link to
     download the zip file, then unzip the file.
 3.  Run \"make build\" to build and create the zip package.
-4.  Install `dist/chat-bot-for-claude-2.4.2.zip`{.verbatim} plugin,
+4.  Install `dist/chat-bot-for-claude-2.4.3.zip`{.verbatim} plugin,
     with the above **Install Zip File** directions.
 
 ## Usage
