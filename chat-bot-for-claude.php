@@ -116,9 +116,6 @@ function fClaudeChatRegisterSettings() {
     register_setting('claude_chat_options', 'claude_chat_model', [
             'sanitize_callback' => 'fClaudeChatSanitizeModel',
         ]);
-    register_setting('claude_chat_options', 'claude_chat_temperature', [
-            'sanitize_callback' => 'fClaudeChatSanitizeTemperature',
-        ]);
     register_setting('claude_chat_options', 'claude_chat_max_tokens', [
             'sanitize_callback' => 'fClaudeChatSanitizeMaxTokens',
         ]);
@@ -145,18 +142,6 @@ add_action('admin_init', 'fClaudeChatRegisterSettings');
 function fClaudeChatSanitizeModel( $value ) {
     $value = sanitize_text_field( (string) $value );
     return preg_match( '/^claude-[a-z0-9.-]+$/', $value ) ? $value : '';
-}
-
-/*
- * Temperature: blank means "not set" (the API default is used),
- * otherwise clamp to 0..1.
- */
-function fClaudeChatSanitizeTemperature( $value ) {
-    $value = trim( (string) $value );
-    if ( $value === '' || ! is_numeric( $value ) ) {
-        return '';
-    }
-    return (string) min( 1, max( 0, floatval( $value ) ) );
 }
 
 /*
@@ -683,8 +668,8 @@ function fClaudeChatCollectText( $data ) {
 /*
  * Send one request to the Messages API.
  *
- * @param array $args api_key, model, max_tokens, temperature, system,
- *                    messages, tools
+ * @param array $args api_key, model, max_tokens, system, messages,
+ *                    tools
  * @return array|string Decoded response array on success; a user-facing error
  *                      string on failure (already logged).
  */
@@ -708,13 +693,6 @@ function fClaudeChatApiSend( $args ) {
 
     if ( ! empty( $args['system'] ) ) {
         $body['system'] = $args['system'];
-    }
-
-    /* Only include temperature when set (0 is falsy but valid, so
-     * check !== '')
-     */
-    if ( $args['temperature'] !== '' ) {
-        $body['temperature'] = floatval( $args['temperature'] );
     }
 
     if ( ! empty( $args['tools'] ) ) {
@@ -790,7 +768,6 @@ function fClaudeChatApiSend( $args ) {
 function fClaudeChatApiRequest( $message ) {
     $api_key       = get_option('claude_chat_api_key');
     $model         = get_option('claude_chat_model');
-    $temperature   = get_option('claude_chat_temperature');
     $max_tokens    = get_option('claude_chat_max_tokens');
     $prefix_prompt = trim(get_option('claude_chat_prefix_prompt', ''));
     $follow_links  = ( get_option('claude_chat_follow_links', '') === '1' );
@@ -847,7 +824,6 @@ function fClaudeChatApiRequest( $message ) {
                 'api_key'     => $api_key,
                 'model'       => $model,
                 'max_tokens'  => $max_tokens,
-                'temperature' => $temperature,
                 'system'      => $system_blocks,
                 'messages'    => $messages,
                 'tools'       => $tools,
@@ -1105,20 +1081,6 @@ function fClaudeChatSettingsInit() {
         array('label_for' => 'claude_chat_model')
     );
 
-    add_settings_field(
-        'claude_chat_temperature',
-        'Temperature',
-        'fClaudeChatNumberFieldCallback',
-        'claude-chat-settings',
-        'claude_chat_settings_section',
-        array(
-            'label_for' => 'claude_chat_temperature',
-            'description' => 'Range: 0 to 1',
-            'min' => 0,
-            'max' => 1,
-            'step' => 0.1,
-        )
-    );
 
     add_settings_field(
         'claude_chat_max_tokens',

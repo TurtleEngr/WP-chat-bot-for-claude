@@ -27,7 +27,7 @@ or check the API Key.
     behavior with ease.
 
 -   **Claude API Support**: Full support for Claude API parameters such
-    as temperature, max tokens, and more.
+    as model, max tokens, and more.
 
 -   **AJAX-Based**: Smooth, responsive chat experience powered by AJAX.
 
@@ -68,8 +68,6 @@ configure the following options:
 
 -   **API Key**: Enter your Claude API key.
 -   **Model**: Select the Claude model you wish to use.
--   **Temperature**: Adjust the randomness of responses (value between
-    0.0 and 1.0).
 -   **Max Tokens**: Set the maximum number of tokens for the response.
 -   **Follow Links**: Checkbox. If checked URLs in the prompts will be
     followed.
@@ -170,9 +168,6 @@ prompt-caching-2024-07-31 header is added automatically.
 The Model list is read from the Models API when the Settings page is
 displayed (see **Claude Models** above).
 
-Fixed temperature to only be sent when it\'s actually set (previously 0
-would be silently dropped).
-
 Bumped Max Tokens ceiling to 8096 to match modern model limits.
 
 ### js or css changes
@@ -206,7 +201,6 @@ needed.
 
     -   API Key - Put your Claude API key here
     -   Model - Pick the model you want
-    -   Temperature - Range: 0 to 1
     -   Max Tokens - Range: 1 to 8096
     -   Follow Links - checkbox
         -   When checked, Claude may call the fetch~url~ tool to read

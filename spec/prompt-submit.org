@@ -308,3 +308,23 @@ I also changed README.org's Claude Models section to describe this and removed t
 
 Lint passes and the security checks still show 0 errors. In a test with a fake API, a good key gave the sorted list, and a bad or missing key showed only the saved model with the note.
 
+** Prompt 5
+
+Since Temperature is not used for most models, please remove the from
+all placed in chat-bot-for-claude.php
+
+Also, remove references to temperature in README.org and readme.txt
+
+** Responce 5
+
+Now the docs.
+
+I've removed Temperature from all three files, and a search for "temperature" now finds nothing in any of them. The updated files are in `chat-bot-for-claude-files.zip`; the repo is still untouched.
+
+- **`chat-bot-for-claude.php`:** the setting, its sanitize function, the Settings page field, the read of the option, and the code that added it to the API request are all gone. In a test where an old temperature value was still saved, the request sent only the model, max tokens and message. Lint passes and the security checks still show 0 errors.
+- **`readme.txt`:** the feature line now reads "Choice of Claude model and max tokens."
+- **README.org:** removed the Temperature lines from Configuration and the Settings list, and the old "Fixed temperature…" note. The API-support feature line now says "model, max tokens, and more."
+
+I also changed one stale line in the `readme.txt` changelog to "The Model list is now read from the Anthropic Models API."
+
+Sites that already saved a temperature still have that value in the database. The plugin no longer reads it, so it's harmless, but the plugin has no uninstall cleanup to delete it.

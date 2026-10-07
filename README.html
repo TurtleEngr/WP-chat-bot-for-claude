@@ -89,7 +89,7 @@
   <p><strong>Customizable Interface</strong>: Modify the chat interface
   appearance and behavior with ease.</p>
   <p><strong>Claude API Support</strong>: Full support for Claude API
-  parameters such as temperature, max tokens, and more.</p>
+  parameters such as model, max tokens, and more.</p>
   <p><strong>AJAX-Based</strong>: Smooth, responsive chat experience powered
   by AJAX.</p>
   <hr />
@@ -132,8 +132,6 @@
   configure the following options:</p>
   <p><strong>API Key</strong>: Enter your Claude API key.</p>
   <p><strong>Model</strong>: Select the Claude model you wish to use.</p>
-  <p><strong>Temperature</strong>: Adjust the randomness of responses (value
-  between 0.0 and 1.0).</p>
   <p><strong>Max Tokens</strong>: Set the maximum number of tokens for the
   response.</p>
   <p><strong>Follow Links</strong>: Checkbox. If checked URLs in the prompts
@@ -212,8 +210,6 @@
   <h3 id="minor-improvements">Minor improvements</h3>
   <p>The Model list is read from the Models API when the Settings page is
   displayed (see <strong>Claude Models</strong> above).</p>
-  <p>Fixed temperature to only be sent when it's actually set (previously 0
-  would be silently dropped).</p>
   <p>Bumped Max Tokens ceiling to 8096 to match modern model limits.</p>
   <h3 id="js-or-css-changes">js or css changes</h3>
   <p>js/chat-bot-for-claude.js — The JavaScript only handles the chat UI:
@@ -250,7 +246,6 @@
   </figure>
   <p>API Key - Put your Claude API key here</p>
   <p>Model - Pick the model you want</p>
-  <p>Temperature - Range: 0 to 1</p>
   <p>Max Tokens - Range: 1 to 8096</p>
   <p>Follow Links - checkbox</p>
   <p>When checked, Claude may call the fetch<sub>url</sub> tool to read URLs

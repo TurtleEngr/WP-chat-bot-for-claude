@@ -18,7 +18,7 @@ on your site.
 Features:
 
 * `[claude_chat]` shortcode to place the chat box on any page or post.
-* Choice of Claude model, temperature, and max tokens.
+* Choice of Claude model and max tokens.
 * Optional Prefix Prompt, sent as the system prompt on every request.
 * Optional "Follow Links": lets Claude fetch web pages named in the
   prompt or the visitor's question.
@@ -101,7 +101,7 @@ See https://github.com/TurtleEngr/WP-chat-bot-for-claude
 * Changes for WordPress.org plugin directory guidelines: GPL license,
   text domain, settings sanitizing, input sanitizing, output escaping.
 * Cleaned up build process.
-* Updated the model list to the current Claude models.
+* The Model list is now read from the Anthropic Models API.
 * The chat log moved to `chat-bot-for-claude-log/claude_log.org`,
   above the WordPress root, so it is not public.
 * Added a "View Log" button. "Clear Logs" now clears only the chat log.
