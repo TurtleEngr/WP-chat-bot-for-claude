@@ -70,7 +70,9 @@ them (see the open problems).
   path couldn't be found.
 
 **Changes in `readme.txt`:**
-- **Header:** name now matches the plugin header ("Claude Chat bot"). License is GPL. Tags cut to 5, with the generic "WordPress" tag removed. Added a short description under 150 characters.
+- **Header:** name now matches the plugin header ("Claude Chat
+  bot"). License is GPL. Tags cut to 5, with the generic "WordPress"
+  tag removed. Added a short description under 150 characters.
 - **New sections:**
   - **External services:** says what is sent to Anthropic, when it's sent, and links to Anthropic's terms and privacy policy. It also covers the fetch_url and pre-fetch requests. Guideline 6 requires this.
   - **Privacy:** says chats are logged.
@@ -94,7 +96,9 @@ them (see the open problems).
    be read from the web. I documented this rather than blocking it,
    because the settings page links to those files. Reviewers may ask
    for them to be protected.
-4. **"Tested up to".** I set it to 7.0, because the current 7.0 release notes don't point to a 7.1 release yet. Change it if 7.1 is out.
+4. **"Tested up to".** I set it to 7.0, because the current 7.0
+   release notes don't point to a 7.1 release yet. Change it if 7.1 is
+   out.
 5. **Contributors.** `aicodecraft` and `turtle-engr` must be real
    WordPress.org usernames.
 6. **Not changed, but noticed:**
@@ -123,4 +127,45 @@ a new branch rather than `develop`.
 
 ** Prompt 2
 
-https://platform.claude.com/docs/en/api/beta/models/list
+- The code can now be found at:
+  https://github.com/TurtleEngr/WP-chat-bot-for-claude/tree/feature/submit-plugin
+
+1. In chat-bot-for-claude.php update the variable cgClaudeChatModels
+   with the latest supported models. For how, see:
+   https://platform.claude.com/docs/en/api/models/list
+
+2. Change the logging of errors to error_log(). Also, there is not
+   need to "clear" the error_log.
+
+3. Change the chat log file location to a directory above public_html,
+   so it cannot be accessed publically.
+   Direcory name: chat-bot-for-claude-log
+   File Name: claude_log.org
+
+4. Create a "View Log" button that will open a new browser tab and display
+   the file in the browser.
+
+5. The "Clear Logs" button now only need to remove the text in one
+   file: claude_log.org
+
+- The text and names in README.org and readme.txt should be consistent
+  with chat-bot-for-claude.php (README.md and README.html are
+  generated from README.org, so there is no need to modify those
+  files.)
+
+- Review the "Submition Guidelines" to make sure
+  chat-bot-for-claude.php and readme.txt are compliant.
+
+- Also, follow the directions in CLAUDE.org
+  
+- Do not make any changes to the repository; just return the modified
+  files in a zip file.
+
+*** Submition Guidelines
++ https://developer.wordpress.org/plugins/wordpress-org/detailed-plugin-guidelines/
++ https://developer.wordpress.org/plugins/plugin-basics/
++ https://developer.wordpress.org/plugins/wordpress-org/how-your-readme-txt-works/
++ https://wordpress.org/plugins/files/2016/06/readme.txt - syntax example
++ https://developer.wordpress.org/apis/security/
++ https://developer.wordpress.org/apis/security/escaping/
++ https://developer.wordpress.org/apis/security/nonces/ - for forms
