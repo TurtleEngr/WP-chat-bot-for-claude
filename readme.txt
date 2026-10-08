@@ -75,7 +75,7 @@ Prompt"?
 
 Every user question and Claude's answer are saved to `claude_log.org`,
 in the directory one level above the WordPress root, so the file
-cannot be read with a web browseer.  Administrators can open it with
+cannot be read with a web browser.  Administrators can open it with
 the "View Log" button on the settings page, and empty it with the
 "Clear Logs" button. The admin should tell users how long they keep
 the logs.

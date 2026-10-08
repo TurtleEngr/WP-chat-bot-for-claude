@@ -69,7 +69,7 @@ for the models.
 Source: <https://github.com/TurtleEngr/WP-chat-bot-for-claude>
 
 1.  Clone (or fork) this repo.
-2.  Or click on the lastest \"tag,\" select the \"Source code\" link to
+2.  Or click on the latest \"tag,\" select the \"Source code\" link to
     download the zip file, then unzip the file.
 3.  Run \"make build\" to build and create the zip package.
 4.  Install `dist/chat-bot-for-claude-VER.zip`{.verbatim} plugin, with
@@ -179,7 +179,7 @@ Added at the bottom of the settings form via
 `fClaudeChatSettingsInit().`{.verbatim} It uses
 `fClaudeChatTextareaFieldCallback()`{.verbatim} that renders a
 &lt;textarea\> (6 rows × 60 cols) with a description explaining the
-caching behaviour. Leaving it blank disables the feature entirely.
+caching behavior. Leaving it blank disables the feature entirely.
 
 prefix + `cache_control`{.verbatim} -
 `fClaudeChatApiRequest()`{.verbatim}
