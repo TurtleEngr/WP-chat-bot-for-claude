@@ -66,6 +66,9 @@ define('cgClaudeChatMaxPrefixPrompt', 65536);
  * whole tool_use loop. Once exceeded, no further URLs are fetched and
  * we answer with whatever text we already have.
  *
+ * cgClaudeChatRateLimit - The number of questions per minute for each
+ * IP.
+ *
  * CAVEAT: the budget is checked *between* steps.  An in-flight Claude
  * API call is not interrupted, so a slow API round trip can overrun
  * the budget (the API call timeout is still 60s). If that matters,
@@ -73,6 +76,7 @@ define('cgClaudeChatMaxPrefixPrompt', 65536);
  */
 define('cgClaudeChatFetchTimeOut', 5);
 define('cgClaudeChatResponseBudget', 20);
+define('cgClaudeChatRateLimit', 10);
 
 /* Max bytes read from a fetched page, and max characters of extracted text
  * handed back to Claude. The byte cap protects PHP memory; the character cap
@@ -279,7 +283,7 @@ function fClaudeChatCheckRateLimit() {
         return true;
     }
 
-    if (intval($count) >= 10) {
+    if (intval($count) >= cgClaudeChatRateLimit) {
         return false; /* Rate limit exceeded. */
     }
 

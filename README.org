@@ -89,13 +89,25 @@ for the models.
 
 + Put the =[claude_chat]= shortcode on any page or post and the chat
   box will be ready for user questions.
+
 + Choice of Claude model and max tokens.
+
 + A "Prefix Prompt" is sent as the system prompt on every request.
-+ "Follow Links" checkbox. If checked Claude can fetch external web
-  pages named in the prompt or in the visitor's question.
+  This is where the "personality," "goals," and "limits" are
+  specified.  To save costs the system prompt is cached for an hour.
+  
++ "Follow Links" checkbox. If checked, Claude is allowed to fetch
+  external web links named in the prompt or in the visitor's question.
+
 + A list of pre-fetch URLs can be added to the system prompt (cached
   for one hour).
+
++ To keep costs down, there are limits to internal query times, and
+  the number of external links followed. (See Code Customization,
+  Constants.)
+
 + Per-IP rate limit of 10 requests per minute.
+
 + The "log" of questions and answers is stored outside the web root so
   only the admin interface can view the log. The "View Log" and "Clear
   Logs" buttons are on the settings page.
@@ -172,6 +184,8 @@ Settings admin form.
 + *cgClaudeChatFetchTimeOut*: 5sec for each URL fetch
 
 + *cgClaudeChatResponseBudget*: 20sec for the whole response
+
++ *cgClaudeChatRateLimit*: 10 per min
 
 + *cgClaudeChatPreFetchTtl*: 3600 sec (1 hour)
 
