@@ -181,56 +181,56 @@ These internal constants can be changed. The defaults values are shown
 here. Also, some of these values will be shown in the Claude Chat
 Settings admin form.
 
-+ *cgClaudeChatFetchTimeOut*: 5sec for each URL fetch
++ *cb4c_gFetchTimeOut*: 5sec for each URL fetch
 
-+ *cgClaudeChatResponseBudget*: 20sec for the whole response
++ *cb4c_gResponseBudget*: 20sec for the whole response
 
-+ *cgClaudeChatRateLimit*: 10 per min
++ *cb4c_gRateLimit*: 10 per min
 
-+ *cgClaudeChatPreFetchTtl*: 3600 sec (1 hour)
++ *cb4c_gPreFetchTtl*: 3600 sec (1 hour)
 
-+ *cgClaudeChatMaxPreFetchUrls*: 10
++ *cb4c_gMaxPreFetchUrls*: 10
   + Pre-fetch list limits. Content is cached in a transient for this
     many seconds, keyed by a hash of the URL list.
 
-+ *cgClaudeChatMaxFetchBytes*: 256 KB
++ *cb4c_gMaxFetchBytes*: 256 KB
 
-+ *cgClaudeChatMaxFetchChars*: 20 KB
++ *cb4c_gMaxFetchChars*: 20 KB
   + The byte cap protects PHP memory; the character cap protects the
     token budget --- a single large page can otherwise crowd out the
     Prefix Prompt and the user's actual question. */
 
-+ *cgClaudeChatMaxToolRounds*: 5
++ *cb4c_gMaxToolRounds*: 5
   + Max number of =send/tool_result= round trips. The response budget is
     the primary stop condition; this is a backstop so a model that keeps
     asking for cheap, fast fetches cannot loop indefinitely inside the
     budget.
 
-+ *cgClaudeChatMaxResponseBytes*: 4 MB
++ *cb4c_gMaxResponseBytes*: 4 MB
 
-+ *cgClaudeChatMaxLogDumpChars*: 4 KB
++ *cb4c_gMaxLogDumpChars*: 4 KB
 
-+ *cgClaudeChatMaxPrefixPrompt*: 65 KB
++ *cb4c_gMaxPrefixPrompt*: 65 KB
 
-+ *cgClaudeChatLogDir*: =dirname(ABSPATH) . '/chat-bot-for-claude-log'=
++ *cb4c_gLogDir*: =dirname(ABSPATH) . '/chat-bot-for-claude-log'=
   + The directory one level above the WordPress root. If WordPress is
     installed in a subdirectory of =public_html=, change this so the
     log is still outside the web root.
 
-+ *cgClaudeChatLogFile*: =claude_log.org=
++ *cb4c_gLogFile*: =claude_log.org=
 
 *** Prefix Prompt
 
-Registered in fClaudeChatRegisterSettings() with =sanitize_textarea_field=
+Registered in cb4c_fRegisterSettings() with =sanitize_textarea_field=
 as its sanitize callback (multi-line safe).
 
 Added at the bottom of the settings form via
-=fClaudeChatSettingsInit().= It uses
-=fClaudeChatTextareaFieldCallback()= that renders a &lt;textarea> (6 rows ×
+=cb4c_fSettingsInit().= It uses
+=cb4c_fTextareaFieldCallback()= that renders a &lt;textarea> (6 rows ×
 60 cols) with a description explaining the caching behavior. Leaving it
 blank disables the feature entirely.
 
-prefix + =cache_control= - =fClaudeChatApiRequest()=
+prefix + =cache_control= - =cb4c_fApiRequest()=
 
 When a prefix is saved, it is sent in the =system= parameter, separate
 from the user message. Pre-fetched page text is added as a second

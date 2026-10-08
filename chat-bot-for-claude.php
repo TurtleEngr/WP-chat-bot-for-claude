@@ -19,8 +19,8 @@ if (! defined('ABSPATH')) {
 
 /*
  * ========================================
- * Globals  Prefix: cgClaudeChat
- * Function Prefix: fClaudeChat
+ * Globals  Prefix: cb4c_gVariableName
+ * Function Prefix: cb4c_fFunctionName
  * ========================================
  */
 
@@ -41,71 +41,71 @@ if (! defined('ABSPATH')) {
  * fail fast rather than consume all available PHP memory inside
  * wp-includes/Requests/src/Requests.php during response parsing.
  */
-define('cgClaudeChatMaxResponseBytes', 4 * 1024 * 1024); /* 4 MB */
+define('cb4c_gMaxResponseBytes', 4 * 1024 * 1024); /* 4 MB */
 
 /* Max characters dumped into the PHP error log when an API error occurs. The raw
  * response body is *not* a useful debugging aid past the first few KB, and
  * we don't want a single bad response to fill the disk or hold a huge
  * string in memory.
  */
-define('cgClaudeChatMaxLogDumpChars', 4096);
+define('cb4c_gMaxLogDumpChars', 4096);
 
 /* Max length (bytes) of the Prefix Prompt stored as an option. 64 KB is
  * roughly 10,000 words — more than a page. Anything larger almost
  * certainly means a mispaste.
  */
-define('cgClaudeChatMaxPrefixPrompt', 65536);
+define('cb4c_gMaxPrefixPrompt', 65536);
 
 /*
  * fetch_url tool limits.
  *
- * cgClaudeChatFetchTimeOut - Seconds allowed for a single URL fetch. On
+ * cb4c_gFetchTimeOut - Seconds allowed for a single URL fetch. On
  * overrun the fetch is abandoned and no content is returned for it.
  *                                
- * cgClaudeChatResponseBudget - Wall-clock seconds allowed for the
+ * cb4c_gResponseBudget - Wall-clock seconds allowed for the
  * whole tool_use loop. Once exceeded, no further URLs are fetched and
  * we answer with whatever text we already have.
  *
- * cgClaudeChatRateLimit - The number of questions per minute for each
+ * cb4c_gRateLimit - The number of questions per minute for each
  * IP.
  *
  * CAVEAT: the budget is checked *between* steps.  An in-flight Claude
  * API call is not interrupted, so a slow API round trip can overrun
  * the budget (the API call timeout is still 60s). If that matters,
- * lower the wp_remote_post() timeout in fClaudeChatApiSend().
+ * lower the wp_remote_post() timeout in cb4c_fApiSend().
  */
-define('cgClaudeChatFetchTimeOut', 5);
-define('cgClaudeChatResponseBudget', 20);
-define('cgClaudeChatRateLimit', 10);
+define('cb4c_gFetchTimeOut', 5);
+define('cb4c_gResponseBudget', 20);
+define('cb4c_gRateLimit', 10);
 
 /* Max bytes read from a fetched page, and max characters of extracted text
  * handed back to Claude. The byte cap protects PHP memory; the character cap
  * protects the token budget — a single large page can otherwise crowd out the
  * Prefix Prompt and the user's actual question.
  */
-define('cgClaudeChatMaxFetchBytes', 256 * 1024); /* 256 KB */
-define('cgClaudeChatMaxFetchChars', 20000);
+define('cb4c_gMaxFetchBytes', 256 * 1024); /* 256 KB */
+define('cb4c_gMaxFetchChars', 20000);
 
 /* Max number of send/tool_result round trips. The response budget is the
  * primary stop condition; this is a backstop so a model that keeps asking for
  * cheap, fast fetches cannot loop indefinitely inside the budget.
  */
-define('cgClaudeChatMaxToolRounds', 5);
+define('cb4c_gMaxToolRounds', 5);
 
 /* Pre-fetch list limits. Content is cached in a transient for this many
  * seconds, keyed by a hash of the URL list.
  */
-define('cgClaudeChatPreFetchTtl', 3600); /* 1 hour */
-define('cgClaudeChatMaxPreFetchUrls', 10);
+define('cb4c_gPreFetchTtl', 3600); /* 1 hour */
+define('cb4c_gMaxPreFetchUrls', 10);
 
 /* Chat log location. The directory is one level above the WordPress
  * root (ABSPATH), e.g. /home/user/chat-bot-for-claude-log when
  * WordPress is in /home/user/public_html, so the web server cannot
  * serve it. If WordPress is installed in a subdirectory of
- * public_html, change cgClaudeChatLogDir.
+ * public_html, change cb4c_gLogDir.
  */
-define('cgClaudeChatLogDir', dirname(ABSPATH) . '/chat-bot-for-claude-log');
-define('cgClaudeChatLogFile', 'claude_log.org');
+define('cb4c_gLogDir', dirname(ABSPATH) . '/chat-bot-for-claude-log');
+define('cb4c_gLogFile', 'claude_log.org');
 
 /*
  * ========================================
@@ -113,37 +113,37 @@ define('cgClaudeChatLogFile', 'claude_log.org');
  * ========================================
  */
  
-function fClaudeChatRegisterSettings() {
+function cb4c_fRegisterSettings() {
     register_setting('claude_chat_options', 'claude_chat_api_key', [
             'sanitize_callback' => 'sanitize_text_field',
         ]);
     register_setting('claude_chat_options', 'claude_chat_model', [
-            'sanitize_callback' => 'fClaudeChatSanitizeModel',
+            'sanitize_callback' => 'cb4c_fSanitizeModel',
         ]);
     register_setting('claude_chat_options', 'claude_chat_max_tokens', [
-            'sanitize_callback' => 'fClaudeChatSanitizeMaxTokens',
+            'sanitize_callback' => 'cb4c_fSanitizeMaxTokens',
         ]);
     register_setting('claude_chat_options', 'claude_chat_follow_links', [
-            'sanitize_callback' => 'fClaudeChatSanitizeFollowLinks',
+            'sanitize_callback' => 'cb4c_fSanitizeFollowLinks',
         ]);
     register_setting('claude_chat_options', 'claude_chat_prefetch_urls', [
-            'sanitize_callback' => 'fClaudeChatSanitizePreFetchUrls',
+            'sanitize_callback' => 'cb4c_fSanitizePreFetchUrls',
         ]);
     /* FIX (memory): custom sanitize callback enforces a length cap so a
      * pathologically large paste cannot be written to wp_options.
      */
     register_setting('claude_chat_options', 'claude_chat_prefix_prompt', [
-            'sanitize_callback' => 'fClaudeChatSanitizePrefixPrompt',
+            'sanitize_callback' => 'cb4c_fSanitizePrefixPrompt',
         ]);
 }
-add_action('admin_init', 'fClaudeChatRegisterSettings');
+add_action('admin_init', 'cb4c_fRegisterSettings');
 
 /*
  * Only accept a well-formed model id, e.g. claude-opus-5-5. The list
- * itself comes from the API (fClaudeChatGetModels()), so it is not
+ * itself comes from the API (cb4c_fGetModels()), so it is not
  * fetched again on save.
  */
-function fClaudeChatSanitizeModel( $value ) {
+function cb4c_fSanitizeModel( $value ) {
     $value = sanitize_text_field( (string) $value );
     return preg_match( '/^claude-[a-z0-9.-]+$/', $value ) ? $value : '';
 }
@@ -151,22 +151,22 @@ function fClaudeChatSanitizeModel( $value ) {
 /*
  * Max Tokens: clamp to 1..8096 (the range shown on the settings page).
  */
-function fClaudeChatSanitizeMaxTokens( $value ) {
+function cb4c_fSanitizeMaxTokens( $value ) {
     return (string) min( 8096, max( 1, absint( $value ) ) );
 }
 
 /*
  * FIX (memory): Sanitize callback for the Prefix Prompt.
  * Runs sanitize_textarea_field first, then clamps the length to
- * cgClaudeChatMaxPrefixPrompt. If truncation occurs, a
+ * cb4c_gMaxPrefixPrompt. If truncation occurs, a
  * settings-error notice is registered so the user sees what happened
  * on the settings screen.
  */
-function fClaudeChatSanitizePrefixPrompt( $value ) {
+function cb4c_fSanitizePrefixPrompt( $value ) {
     $value = sanitize_textarea_field( $value );
     $len   = strlen( $value );
-    if ( $len > cgClaudeChatMaxPrefixPrompt ) {
-        $value = substr( $value, 0, cgClaudeChatMaxPrefixPrompt );
+    if ( $len > cb4c_gMaxPrefixPrompt ) {
+        $value = substr( $value, 0, cb4c_gMaxPrefixPrompt );
         add_settings_error(
             'claude_chat_prefix_prompt',
             'claude_chat_prefix_prompt_truncated',
@@ -174,7 +174,7 @@ function fClaudeChatSanitizePrefixPrompt( $value ) {
                 /* translators: 1: submitted size, 2: allowed size */
                 esc_html__( 'Prefix Prompt was %1$d bytes; truncated to the %2$d-byte limit.', 'chat-bot-for-claude' ),
                 $len,
-                cgClaudeChatMaxPrefixPrompt
+                cb4c_gMaxPrefixPrompt
             ),
             'warning'
         );
@@ -186,10 +186,10 @@ function fClaudeChatSanitizePrefixPrompt( $value ) {
  * Normalise the Follow Links checkbox to '1' or ''.
  *
  * The settings form posts a hidden '0' before the checkbox (see
- * fClaudeChatCheckboxFieldCallback), so an unchecked box still submits a
+ * cb4c_fCheckboxFieldCallback), so an unchecked box still submits a
  * value and the option is correctly cleared.
  */
-function fClaudeChatSanitizeFollowLinks( $value ) {
+function cb4c_fSanitizeFollowLinks( $value ) {
     return ( $value === '1' ) ? '1' : '';
 }
 
@@ -198,9 +198,9 @@ function fClaudeChatSanitizeFollowLinks( $value ) {
  *
  * Invalid lines are dropped with a settings-error notice rather than silently
  * accepted, so a typo does not turn into a silent no-op at request time. The
- * list is capped at cgClaudeChatMaxPreFetchUrls entries.
+ * list is capped at cb4c_gMaxPreFetchUrls entries.
  */
-function fClaudeChatSanitizePreFetchUrls( $value ) {
+function cb4c_fSanitizePreFetchUrls( $value ) {
     $lines   = preg_split( '/\r\n|\r|\n/', (string) $value );
     $urls    = array();
     $skipped = 0;
@@ -210,7 +210,7 @@ function fClaudeChatSanitizePreFetchUrls( $value ) {
         if ( $line === '' ) {
             continue;
         }
-        if ( count( $urls ) >= cgClaudeChatMaxPreFetchUrls ) {
+        if ( count( $urls ) >= cb4c_gMaxPreFetchUrls ) {
             $skipped++;
             continue;
         }
@@ -232,7 +232,7 @@ function fClaudeChatSanitizePreFetchUrls( $value ) {
                 /* translators: 1: number skipped, 2: allowed maximum */
                 esc_html__( '%1$d pre-fetch line(s) dropped: invalid, non-http(s), private address, or beyond the %2$d-URL limit.', 'chat-bot-for-claude' ),
                 $skipped,
-                cgClaudeChatMaxPreFetchUrls
+                cb4c_gMaxPreFetchUrls
             ),
             'warning'
         );
@@ -243,7 +243,7 @@ function fClaudeChatSanitizePreFetchUrls( $value ) {
 
 
 /* Enqueue necessary scripts and styles */
-function fClaudeChatEnqueueScripts() {
+function cb4c_fEnqueueScripts() {
     wp_enqueue_style('claude-chat-style', plugin_dir_url(__FILE__) . 'css/chat-bot-for-claude.css', array(), 'VERSION');
     wp_enqueue_script('claude-chat-script', plugin_dir_url(__FILE__) . 'js/chat-bot-for-claude.js', array('jquery'), 'VERSION', true);
     wp_localize_script('claude-chat-script', 'claudeChat', array(
@@ -251,10 +251,10 @@ function fClaudeChatEnqueueScripts() {
             'nonce'    => wp_create_nonce('claude-chat-nonce'),
         ));
 }
-add_action('wp_enqueue_scripts', 'fClaudeChatEnqueueScripts');
+add_action('wp_enqueue_scripts', 'cb4c_fEnqueueScripts');
 
 /* Shortcode to display the chat bot */
-function fClaudeChatShortCode() {
+function cb4c_fShortCode() {
     ob_start();
 ?>
     <div id="chat-bot-for-claude">
@@ -265,13 +265,13 @@ function fClaudeChatShortCode() {
     <?php
     return ob_get_clean();
 }
-add_shortcode('claude_chat', 'fClaudeChatShortCode');
+add_shortcode('claude_chat', 'cb4c_fShortCode');
 
 /*
  * Transient-based rate limiter — max 10 requests per minute per IP.
  * Returns true when the request is allowed, false when the limit is exceeded.
  */
-function fClaudeChatCheckRateLimit() {
+function cb4c_fCheckRateLimit() {
     $ip            = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : 'unknown';
     $transient_key = 'claude_chat_rate_' . md5($ip);
     $count         = get_transient($transient_key);
@@ -283,7 +283,7 @@ function fClaudeChatCheckRateLimit() {
         return true;
     }
 
-    if (intval($count) >= cgClaudeChatRateLimit) {
+    if (intval($count) >= cb4c_gRateLimit) {
         return false; /* Rate limit exceeded. */
     }
 
@@ -293,11 +293,11 @@ function fClaudeChatCheckRateLimit() {
 }
 
 /* AJAX handler for chat requests */
-function fClaudeChatAjaxHandler() {
+function cb4c_fAjaxHandler() {
     check_ajax_referer('claude-chat-nonce', 'nonce');
 
     /* Enforce rate limit before doing any further work. */
-    if ( ! fClaudeChatCheckRateLimit() ) {
+    if ( ! cb4c_fCheckRateLimit() ) {
         wp_send_json_error('Rate limit exceeded. Please wait a moment before sending another message.');
         return;
     }
@@ -310,7 +310,7 @@ function fClaudeChatAjaxHandler() {
         return;
     }
 
-    $response = fClaudeChatApiRequest($message);
+    $response = cb4c_fApiRequest($message);
     if ($response) {
         /* The JS inserts the reply with .html(), so escape it here:
            allow normal post HTML, strip scripts and event handlers. */
@@ -319,8 +319,8 @@ function fClaudeChatAjaxHandler() {
         wp_send_json_error('Error: No response from API');
     }
 }
-add_action('wp_ajax_claude_chat',        'fClaudeChatAjaxHandler');
-add_action('wp_ajax_nopriv_claude_chat', 'fClaudeChatAjaxHandler');
+add_action('wp_ajax_claude_chat',        'cb4c_fAjaxHandler');
+add_action('wp_ajax_nopriv_claude_chat', 'cb4c_fAjaxHandler');
 
 /*
  * ========================================
@@ -330,13 +330,13 @@ add_action('wp_ajax_nopriv_claude_chat', 'fClaudeChatAjaxHandler');
 
 /*
  * Returns the absolute filesystem path to the chat log file
- * (cgClaudeChatLogDir/cgClaudeChatLogFile), creating the directory if
+ * (cb4c_gLogDir/cb4c_gLogFile), creating the directory if
  * it does not yet exist.
  *
  * @return string|false       Absolute path on success, false on failure.
  */
-function fClaudeChatGetLogPath() {
-    $dir = cgClaudeChatLogDir;
+function cb4c_fGetLogPath() {
+    $dir = cb4c_gLogDir;
 
     if ( ! is_dir( $dir ) ) {
         /* wp_mkdir_p() creates intermediate directories and returns
@@ -346,7 +346,7 @@ function fClaudeChatGetLogPath() {
         }
     }
 
-    return trailingslashit( $dir ) . cgClaudeChatLogFile;
+    return trailingslashit( $dir ) . cb4c_gLogFile;
 }
 
 
@@ -364,7 +364,7 @@ function fClaudeChatGetLogPath() {
  * @return string          Safe-to-log string, never longer than
  *                         $max_chars + a short truncation marker.
  */
-function fClaudeChatTruncateForLog( $value, $max_chars = cgClaudeChatMaxLogDumpChars ) {
+function cb4c_fTruncateForLog( $value, $max_chars = cb4c_gMaxLogDumpChars ) {
     if ( ! is_string( $value ) ) {
         $value = (string) wp_json_encode( $value, JSON_PRETTY_PRINT );
     }
@@ -388,8 +388,8 @@ function fClaudeChatTruncateForLog( $value, $max_chars = cgClaudeChatMaxLogDumpC
  * @param string  $message  The sanitised user message sent to the API.
  * @param string  $response The text returned by the Claude API.
  */
-function fClaudeChatLogMessage( $message, $response ) {
-    $path = fClaudeChatGetLogPath();
+function cb4c_fLogMessage( $message, $response ) {
+    $path = cb4c_fGetLogPath();
     if ( $path === false ) {
         return; /* Could not resolve / create the directory — fail silently. */
     }
@@ -414,7 +414,7 @@ function fClaudeChatLogMessage( $message, $response ) {
  * @param string  $error_type    Short label, e.g. 'HTTP Error', 'API Error'.
  * @param string  $error_message Full error detail.
  */
-function fClaudeChatLogError( $error_type, $error_message ) {
+function cb4c_fLogError( $error_type, $error_message ) {
     // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Intentional run-time error logging.
     error_log( "chat-bot-for-claude - {$error_type}: {$error_message}" );
 }
@@ -431,12 +431,12 @@ function fClaudeChatLogError( $error_type, $error_message ) {
  * script/style/noscript bodies are removed first: wp_strip_all_tags() drops
  * the tags but keeps their contents, which would otherwise hand Claude a pile
  * of JavaScript. The result is whitespace-collapsed and clamped to
- * cgClaudeChatMaxFetchChars characters.
+ * cb4c_gMaxFetchChars characters.
  *
  * @param string $html Raw response body.
  * @return string      Plain text, possibly truncated.
  */
-function fClaudeChatHtmlToText( $html ) {
+function cb4c_fHtmlToText( $html ) {
     $stripped = preg_replace( '#<(script|style|noscript)\b[^>]*>.*?</\1>#is', ' ', $html );
     /* preg_replace() returns null on failure (e.g. hitting the backtrack
        limit on a pathological document) — fall back to the raw body. */
@@ -451,12 +451,12 @@ function fClaudeChatHtmlToText( $html ) {
     $text = trim( (string) $text );
 
     if ( function_exists( 'mb_strlen' ) ) {
-        if ( mb_strlen( $text, 'UTF-8' ) > cgClaudeChatMaxFetchChars ) {
-            $text = mb_substr( $text, 0, cgClaudeChatMaxFetchChars, 'UTF-8' )
+        if ( mb_strlen( $text, 'UTF-8' ) > cb4c_gMaxFetchChars ) {
+            $text = mb_substr( $text, 0, cb4c_gMaxFetchChars, 'UTF-8' )
                   . "\n... [truncated]";
         }
-    } elseif ( strlen( $text ) > cgClaudeChatMaxFetchChars ) {
-        $text = substr( $text, 0, cgClaudeChatMaxFetchChars ) . "\n... [truncated]";
+    } elseif ( strlen( $text ) > cb4c_gMaxFetchChars ) {
+        $text = substr( $text, 0, cb4c_gMaxFetchChars ) . "\n... [truncated]";
     }
 
     return $text;
@@ -471,39 +471,39 @@ function fClaudeChatHtmlToText( $html ) {
  * internal service or a cloud metadata endpoint. On a public-facing page,
  * consider tightening this to an explicit hostname allow-list.
  *
- * Honours cgClaudeChatFetchTimeOut (cFetchN): on timeout the call is
+ * Honours cb4c_gFetchTimeOut (cFetchN): on timeout the call is
  * abandoned and false is returned.
  *
  * @param string $url Absolute http(s) URL.
  * @return string|false Extracted text, or false on any failure.
  */
-function fClaudeChatFetchUrl( $url ) {
+function cb4c_fFetchUrl( $url ) {
     $url = esc_url_raw( trim( (string) $url ) );
 
     if ( $url === '' || ! wp_http_validate_url( $url ) ) {
-        fClaudeChatLogError( 'Fetch Rejected', fClaudeChatTruncateForLog( $url, 256 ) );
+        cb4c_fLogError( 'Fetch Rejected', cb4c_fTruncateForLog( $url, 256 ) );
         return false;
     }
 
     $response = wp_safe_remote_get( $url, array(
-            'timeout'             => cgClaudeChatFetchTimeOut,
+            'timeout'             => cb4c_gFetchTimeOut,
             'redirection'         => 3,
-            'limit_response_size' => cgClaudeChatMaxFetchBytes,
+            'limit_response_size' => cb4c_gMaxFetchBytes,
             'user-agent'          => 'WP-chat-bot-for-claude/VERSION',
         ) );
 
     if ( is_wp_error( $response ) ) {
-        fClaudeChatLogError( 'Fetch Error', $url . ' - ' . $response->get_error_message() );
+        cb4c_fLogError( 'Fetch Error', $url . ' - ' . $response->get_error_message() );
         return false;
     }
 
     $code = intval( wp_remote_retrieve_response_code( $response ) );
     if ( $code !== 200 ) {
-        fClaudeChatLogError( 'Fetch Error', $url . ' - HTTP ' . $code );
+        cb4c_fLogError( 'Fetch Error', $url . ' - HTTP ' . $code );
         return false;
     }
 
-    return fClaudeChatHtmlToText( wp_remote_retrieve_body( $response ) );
+    return cb4c_fHtmlToText( wp_remote_retrieve_body( $response ) );
 }
 
 /*
@@ -519,7 +519,7 @@ function fClaudeChatFetchUrl( $url ) {
  *
  * @return string System-prompt text, or '' when nothing is configured/fetched.
  */
-function fClaudeChatGetPreFetchBlock() {
+function cb4c_fGetPreFetchBlock() {
     $raw = trim( get_option( 'claude_chat_prefetch_urls', '' ) );
     if ( $raw === '' ) {
         return '';
@@ -531,7 +531,7 @@ function fClaudeChatGetPreFetchBlock() {
         if ( $line !== '' ) {
             $urls[] = $line;
         }
-        if ( count( $urls ) >= cgClaudeChatMaxPreFetchUrls ) {
+        if ( count( $urls ) >= cb4c_gMaxPreFetchUrls ) {
             break;
         }
     }
@@ -547,7 +547,7 @@ function fClaudeChatGetPreFetchBlock() {
 
     $parts = array();
     foreach ( $urls as $url ) {
-        $text = fClaudeChatFetchUrl( $url );
+        $text = cb4c_fFetchUrl( $url );
         if ( $text === false || $text === '' ) {
             continue;
         }
@@ -561,7 +561,7 @@ function fClaudeChatGetPreFetchBlock() {
                . implode( "\n\n", $parts );
     }
 
-    set_transient( $cache_key, $block, cgClaudeChatPreFetchTtl );
+    set_transient( $cache_key, $block, cb4c_gPreFetchTtl );
     return $block;
 }
 
@@ -569,7 +569,7 @@ function fClaudeChatGetPreFetchBlock() {
 /*
  * Tool definition sent to the API when Follow Links is enabled.
  */
-function fClaudeChatFetchUrl_tool_spec() {
+function cb4c_fFetchUrl_tool_spec() {
     return array(
         'name'         => 'fetch_url',
         'description'  => 'Fetch a web page and return its visible text. Use this whenever the '
@@ -604,7 +604,7 @@ function fClaudeChatFetchUrl_tool_spec() {
  * Returns id => display_name, newest to oldest (sorted by created_at),
  * or false when there is no API key or the call fails (already logged).
  */
-function fClaudeChatGetModels() {
+function cb4c_fGetModels() {
     $api_key = get_option('claude_chat_api_key');
     if ( empty( $api_key ) ) {
         return false;
@@ -619,13 +619,13 @@ function fClaudeChatGetModels() {
         ) );
 
     if ( is_wp_error( $response ) ) {
-        fClaudeChatLogError( 'Models Error', $response->get_error_message() );
+        cb4c_fLogError( 'Models Error', $response->get_error_message() );
         return false;
     }
 
     $data = json_decode( wp_remote_retrieve_body( $response ), true );
     if ( ! is_array( $data ) || ! isset( $data['data'] ) || ! is_array( $data['data'] ) ) {
-        fClaudeChatLogError( 'Models Error', fClaudeChatTruncateForLog( $data ) );
+        cb4c_fLogError( 'Models Error', cb4c_fTruncateForLog( $data ) );
         return false;
     }
 
@@ -654,7 +654,7 @@ function fClaudeChatGetModels() {
  * first block is frequently a tool_use block, so text must be gathered by
  * type rather than by position.
  */
-function fClaudeChatCollectText( $data ) {
+function cb4c_fCollectText( $data ) {
     if ( empty( $data['content'] ) || ! is_array( $data['content'] ) ) {
         return '';
     }
@@ -677,7 +677,7 @@ function fClaudeChatCollectText( $data ) {
  * @return array|string Decoded response array on success; a user-facing error
  *                      string on failure (already logged).
  */
-function fClaudeChatApiSend( $args ) {
+function cb4c_fApiSend( $args ) {
     /* Use the correct API-Endpoint. */
     $url = 'https://api.anthropic.com/v1/messages';
 
@@ -724,11 +724,11 @@ function fClaudeChatApiSend( $args ) {
             'headers'             => $headers,
             'body'                => wp_json_encode( $body ),
             'timeout'             => 60,
-            'limit_response_size' => cgClaudeChatMaxResponseBytes,
+            'limit_response_size' => cb4c_gMaxResponseBytes,
         ) );
 
     if ( is_wp_error( $response ) ) {
-        fClaudeChatLogError( 'HTTP Error', $response->get_error_message() );
+        cb4c_fLogError( 'HTTP Error', $response->get_error_message() );
         return 'Error: ' . $response->get_error_message();
     }
 
@@ -737,16 +737,16 @@ function fClaudeChatApiSend( $args ) {
     if ( isset( $data['error'] ) ) {
         /* FIX (memory): truncate the dumped payload so a huge error
            body cannot balloon the log file or PHP memory. */
-        fClaudeChatLogError( 'API Error', fClaudeChatTruncateForLog( $data ) );
+        cb4c_fLogError( 'API Error', cb4c_fTruncateForLog( $data ) );
         return 'API Error: ' . $data['error']['message'];
     }
 
     if ( ! is_array( $data ) || ! isset( $data['content'] ) || ! is_array( $data['content'] ) ) {
         /* FIX (memory): same truncation rationale as above. */
-        fClaudeChatLogError(
+        cb4c_fLogError(
             'Unknown Error',
             'Unable to get a response from Claude API. Response: '
-                . fClaudeChatTruncateForLog( $data )
+                . cb4c_fTruncateForLog( $data )
         );
         return 'Error: Unable to get a response from Claude API.';
     }
@@ -763,13 +763,13 @@ function fClaudeChatApiSend( $args ) {
  *   send -> if the reply contains tool_use blocks, fetch each requested URL,
  *   append the assistant turn plus a matching tool_result for every tool_use
  *   id, and send again. Repeat until the model stops asking, the round cap is
- *   hit, or cgClaudeChatResponseBudget (cResponseN) is exhausted.
+ *   hit, or cb4c_gResponseBudget (cResponseN) is exhausted.
  *
  * Every tool_use block must receive a tool_result with the same id or the
  * next request is rejected, so failed and skipped fetches return an
  * explanatory result rather than being omitted.
  */
-function fClaudeChatApiRequest( $message ) {
+function cb4c_fApiRequest( $message ) {
     $api_key       = get_option('claude_chat_api_key');
     $model         = get_option('claude_chat_model');
     $max_tokens    = get_option('claude_chat_max_tokens');
@@ -801,7 +801,7 @@ function fClaudeChatApiRequest( $message ) {
         $system_blocks[] = array( 'type' => 'text', 'text' => $prefix_prompt );
     }
 
-    $prefetch = fClaudeChatGetPreFetchBlock();
+    $prefetch = cb4c_fGetPreFetchBlock();
     if ( $prefetch !== '' ) {
         $system_blocks[] = array( 'type' => 'text', 'text' => $prefetch );
     }
@@ -818,13 +818,13 @@ function fClaudeChatApiRequest( $message ) {
         ),
     );
 
-    $tools      = $follow_links ? array( fClaudeChatFetchUrl_tool_spec() ) : array();
+    $tools      = $follow_links ? array( cb4c_fFetchUrl_tool_spec() ) : array();
     $final_text = '';
     $timed_out  = false;
 
-    for ( $round = 0; $round <= cgClaudeChatMaxToolRounds; $round++ ) {
+    for ( $round = 0; $round <= cb4c_gMaxToolRounds; $round++ ) {
 
-        $data = fClaudeChatApiSend( array(
+        $data = cb4c_fApiSend( array(
                 'api_key'     => $api_key,
                 'model'       => $model,
                 'max_tokens'  => $max_tokens,
@@ -837,7 +837,7 @@ function fClaudeChatApiRequest( $message ) {
             return $data; /* Already logged, and safe to show the user. */
         }
 
-        $text = fClaudeChatCollectText( $data );
+        $text = cb4c_fCollectText( $data );
         if ( $text !== '' ) {
             $final_text = $text;
         }
@@ -854,19 +854,19 @@ function fClaudeChatApiRequest( $message ) {
             break; /* Normal completion. */
         }
 
-        if ( $round === cgClaudeChatMaxToolRounds ) {
-            fClaudeChatLogError(
+        if ( $round === cb4c_gMaxToolRounds ) {
+            cb4c_fLogError(
                 'Tool Loop',
-                'Reached the ' . cgClaudeChatMaxToolRounds . '-round cap; returning a partial answer.'
+                'Reached the ' . cb4c_gMaxToolRounds . '-round cap; returning a partial answer.'
             );
             break;
         }
 
-        if ( ( microtime( true ) - $started ) >= cgClaudeChatResponseBudget ) {
+        if ( ( microtime( true ) - $started ) >= cb4c_gResponseBudget ) {
             $timed_out = true;
-            fClaudeChatLogError(
+            cb4c_fLogError(
                 'Tool Loop',
-                'Response budget of ' . cgClaudeChatResponseBudget
+                'Response budget of ' . cb4c_gResponseBudget
                     . 's exhausted before round ' . ( $round + 1 ) . '.'
             );
             break;
@@ -882,7 +882,7 @@ function fClaudeChatApiRequest( $message ) {
             /* Budget can run out partway through a batch of URLs. Remaining
                tool_use blocks still need a result, so return an error one
                instead of fetching. */
-            if ( ( microtime( true ) - $started ) >= cgClaudeChatResponseBudget ) {
+            if ( ( microtime( true ) - $started ) >= cb4c_gResponseBudget ) {
                 $timed_out          = true;
                 $result['content']  = 'Not fetched: the response time budget was exhausted. '
                                     . 'Answer with what you already have.';
@@ -901,12 +901,12 @@ function fClaudeChatApiRequest( $message ) {
                 continue;
             }
 
-            $text = fClaudeChatFetchUrl( $url );
+            $text = cb4c_fFetchUrl( $url );
 
             if ( $text === false || $text === '' ) {
                 /* Per spec: a fetch that fails or times out returns nothing. */
                 $result['content']  = 'Could not fetch ' . $url . ' (unreachable, blocked, non-200, '
-                                    . 'or timed out after ' . cgClaudeChatFetchTimeOut . 's). '
+                                    . 'or timed out after ' . cb4c_gFetchTimeOut . 's). '
                                     . 'Do not invent its contents.';
                 $result['is_error'] = true;
             } else {
@@ -926,12 +926,12 @@ function fClaudeChatApiRequest( $message ) {
         $final_text = $timed_out
             ? 'Error: Timed out while retrieving linked pages. Please try again.'
             : 'Error: Unable to get a response from Claude API.';
-        fClaudeChatLogError( 'Empty Response', $final_text );
+        cb4c_fLogError( 'Empty Response', $final_text );
         return $final_text;
     }
 
     /* Log the user message and Claude response to claude_log.org. */
-    fClaudeChatLogMessage( $message, $final_text );
+    cb4c_fLogMessage( $message, $final_text );
 
     return $final_text;
 }
@@ -943,13 +943,13 @@ function fClaudeChatApiRequest( $message ) {
  * heading), then redirects back to the settings page with a
  * confirmation flag.
  */
-function fClaudeChatClearLogs() {
+function cb4c_fClearLogs() {
     if ( ! current_user_can('manage_options') ) {
         wp_die( esc_html__('Unauthorized', 'chat-bot-for-claude') );
     }
-    check_admin_referer('fClaudeChatClearLogs_action', 'fClaudeChatClearLogs_nonce');
+    check_admin_referer('cb4c_fClearLogs_action', 'cb4c_fClearLogs_nonce');
 
-    $path = fClaudeChatGetLogPath();
+    $path = cb4c_fGetLogPath();
     if ( $path ) {
         file_put_contents( $path, "* Log\n", LOCK_EX );
     }
@@ -960,7 +960,7 @@ function fClaudeChatClearLogs() {
     ) );
     exit;
 }
-add_action('admin_post_fClaudeChatClearLogs', 'fClaudeChatClearLogs');
+add_action('admin_post_cb4c_fClearLogs', 'cb4c_fClearLogs');
 
 /*
  * View Log handler
@@ -969,13 +969,13 @@ add_action('admin_post_fClaudeChatClearLogs', 'fClaudeChatClearLogs');
  * nosniff means the browser shows the log as text and never runs it
  * as HTML.
  */
-function fClaudeChatViewLog() {
+function cb4c_fViewLog() {
     if ( ! current_user_can('manage_options') ) {
         wp_die( esc_html__('Unauthorized', 'chat-bot-for-claude') );
     }
-    check_admin_referer('fClaudeChatViewLog_action');
+    check_admin_referer('cb4c_fViewLog_action');
 
-    $path = fClaudeChatGetLogPath();
+    $path = cb4c_fGetLogPath();
 
     nocache_headers();
     header('Content-Type: text/plain; charset=utf-8');
@@ -988,7 +988,7 @@ function fClaudeChatViewLog() {
     }
     exit;
 }
-add_action('admin_post_fClaudeChatViewLog', 'fClaudeChatViewLog');
+add_action('admin_post_cb4c_fViewLog', 'cb4c_fViewLog');
 
 
 /*
@@ -997,26 +997,26 @@ add_action('admin_post_fClaudeChatViewLog', 'fClaudeChatViewLog');
  * ========================================
  */
  
-function fClaudeChatSettingsPage() {
+function cb4c_fSettingsPage() {
     add_options_page(
         'Claude Chat Settings',
         'Claude Chat',
         'manage_options',
         'claude-chat-settings',
-        'fClaudeChatSettingsPage_html'
+        'cb4c_fSettingsPage_html'
     );
 }
-add_action('admin_menu', 'fClaudeChatSettingsPage');
+add_action('admin_menu', 'cb4c_fSettingsPage');
 
 /* Settings page HTML */
-function fClaudeChatSettingsPage_html() {
+function cb4c_fSettingsPage_html() {
     $homeUrl = home_url();
 ?>
     <div class="wrap">
         <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
 
         <?php
-        /* Display-only flag set by fClaudeChatClearLogs() after its own nonce check. */
+        /* Display-only flag set by cb4c_fClearLogs() after its own nonce check. */
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $logs_cleared = isset($_GET['logs-cleared']) ? sanitize_text_field(wp_unslash($_GET['logs-cleared'])) : '';
         ?>
@@ -1036,19 +1036,19 @@ function fClaudeChatSettingsPage_html() {
 
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>"
               style="margin-top:12px;">
-            <input type="hidden" name="action" value="fClaudeChatClearLogs">
-            <?php wp_nonce_field('fClaudeChatClearLogs_action', 'fClaudeChatClearLogs_nonce'); ?>
+            <input type="hidden" name="action" value="cb4c_fClearLogs">
+            <?php wp_nonce_field('cb4c_fClearLogs_action', 'cb4c_fClearLogs_nonce'); ?>
             <?php
             $view_url = wp_nonce_url(
-                admin_url('admin-post.php?action=fClaudeChatViewLog'),
-                'fClaudeChatViewLog_action'
+                admin_url('admin-post.php?action=cb4c_fViewLog'),
+                'cb4c_fViewLog_action'
             );
             echo '<a href="' . esc_url($view_url) . '" class="button" target="_blank" rel="noopener">'
                 . esc_html__('View Log', 'chat-bot-for-claude') . '</a> ';
-            submit_button('Clear Logs', 'delete', 'fClaudeChatClearLogs_submit', false);
+            submit_button('Clear Logs', 'delete', 'cb4c_fClearLogs_submit', false);
             echo '<p class="description">'
                 . esc_html__('Chat log file:', 'chat-bot-for-claude') . ' '
-                . esc_html(trailingslashit(cgClaudeChatLogDir) . cgClaudeChatLogFile)
+                . esc_html(trailingslashit(cb4c_gLogDir) . cb4c_gLogFile)
                 . '<br>'
                 . esc_html__('Errors are written to the PHP error log.', 'chat-bot-for-claude')
                 . '</p>';
@@ -1059,18 +1059,18 @@ function fClaudeChatSettingsPage_html() {
 }
 
 /* Initialize settings */
-function fClaudeChatSettingsInit() {
+function cb4c_fSettingsInit() {
     add_settings_section(
         'claude_chat_settings_section',
         'Claude API Settings',
-        'fClaudeChatSettingsSection',
+        'cb4c_fSettingsSection',
         'claude-chat-settings'
     );
 
     add_settings_field(
         'claude_chat_api_key',
         'API Key',
-        'fClaudeChatApiKeyFieldCallback',   /* dedicated callback uses type="password" */
+        'cb4c_fApiKeyFieldCallback',   /* dedicated callback uses type="password" */
         'claude-chat-settings',
         'claude_chat_settings_section',
         array('label_for' => 'claude_chat_api_key')
@@ -1079,7 +1079,7 @@ function fClaudeChatSettingsInit() {
     add_settings_field(
         'claude_chat_model',
         'Model',
-        'fClaudeChatDropdownCallback',
+        'cb4c_fDropdownCallback',
         'claude-chat-settings',
         'claude_chat_settings_section',
         array('label_for' => 'claude_chat_model')
@@ -1089,7 +1089,7 @@ function fClaudeChatSettingsInit() {
     add_settings_field(
         'claude_chat_max_tokens',
         'Max Tokens',
-        'fClaudeChatNumberFieldCallback',
+        'cb4c_fNumberFieldCallback',
         'claude-chat-settings',
         'claude_chat_settings_section',
         array(
@@ -1103,15 +1103,15 @@ function fClaudeChatSettingsInit() {
     add_settings_field(
         'claude_chat_follow_links',
         'Follow Links',
-        'fClaudeChatCheckboxFieldCallback',
+        'cb4c_fCheckboxFieldCallback',
         'claude-chat-settings',
         'claude_chat_settings_section',
         array(
             'label_for'   => 'claude_chat_follow_links',
             'description' => 'When checked, Claude may call the fetch_url tool to read URLs '
                            . 'named in the prompt or the user question. Each fetch times out after '
-                           . cgClaudeChatFetchTimeOut . 's; the whole fetch loop stops after '
-                           . cgClaudeChatResponseBudget . 's and answers with what it has. '
+                           . cb4c_gFetchTimeOut . 's; the whole fetch loop stops after '
+                           . cb4c_gResponseBudget . 's and answers with what it has. '
                            . 'Adds an API round trip per batch of fetches, so replies are slower and '
                            . 'cost more tokens.',
         )
@@ -1120,16 +1120,16 @@ function fClaudeChatSettingsInit() {
     add_settings_field(
         'claude_chat_prefetch_urls',
         'List of pre-fetch URLs',
-        'fClaudeChatTextareaFieldCallback',
+        'cb4c_fTextareaFieldCallback',
         'claude-chat-settings',
         'claude_chat_settings_section',
         array(
             'label_for'   => 'claude_chat_prefetch_urls',
-            'description' => 'Optional. One URL per line, max ' . cgClaudeChatMaxPreFetchUrls . '. '
+            'description' => 'Optional. One URL per line, max ' . cb4c_gMaxPreFetchUrls . '. '
                            . 'These are always fetched and added to the system prompt, whether or not '
                            . 'Follow Links is checked. Content is cached for '
-                           . intval( cgClaudeChatPreFetchTtl / 60 ) . ' minutes and truncated to '
-                           . number_format( cgClaudeChatMaxFetchChars ) . ' characters per page. '
+                           . intval( cb4c_gPreFetchTtl / 60 ) . ' minutes and truncated to '
+                           . number_format( cb4c_gMaxFetchChars ) . ' characters per page. '
                            . 'Leave blank to disable.',
         )
     );
@@ -1137,19 +1137,19 @@ function fClaudeChatSettingsInit() {
     add_settings_field(
         'claude_chat_prefix_prompt',
         'Prefix Prompt',
-        'fClaudeChatTextareaFieldCallback',
+        'cb4c_fTextareaFieldCallback',
         'claude-chat-settings',
         'claude_chat_settings_section',
         array(
             'label_for'   => 'claude_chat_prefix_prompt',
-            'description' => 'Optional. Sent as the system prompt on every request, keeping it separate from user input. Uses cache_control to save costs. Leave blank to disable. Max ' . number_format( cgClaudeChatMaxPrefixPrompt ) . ' bytes.',
+            'description' => 'Optional. Sent as the system prompt on every request, keeping it separate from user input. Uses cache_control to save costs. Leave blank to disable. Max ' . number_format( cb4c_gMaxPrefixPrompt ) . ' bytes.',
         )
     );
 }
-add_action('admin_init', 'fClaudeChatSettingsInit');
+add_action('admin_init', 'cb4c_fSettingsInit');
 
 /* Field render callbacks */
-function fClaudeChatSettingsSection($args) {
+function cb4c_fSettingsSection($args) {
     echo '<p>Version: VERSION</p>';
     echo '<p>Click <a href="' . esc_url('https://github.com/TurtleEngr/WP-chat-bot-for-claude/blob/main/README.md') . '" target="_blank">HERE</a> for help.</p>';
     echo '<p>Enter your Claude API settings below:</p>';
@@ -1158,7 +1158,7 @@ function fClaudeChatSettingsSection($args) {
 /* Render the API key as a password field so it is masked in the
  * browser.
  */
-function fClaudeChatApiKeyFieldCallback($args) {
+function cb4c_fApiKeyFieldCallback($args) {
     $option = get_option($args['label_for']);
     echo '<input type="password" id="'  . esc_attr($args['label_for'])
         . '" name="'                     . esc_attr($args['label_for'])
@@ -1170,7 +1170,7 @@ function fClaudeChatApiKeyFieldCallback($args) {
     }
 }
 
-function fClaudeChatNumberFieldCallback($args) {
+function cb4c_fNumberFieldCallback($args) {
     $option = get_option($args['label_for']);
     echo '<input type="number" id="' . esc_attr($args['label_for'])
         . '" name="'                  . esc_attr($args['label_for'])
@@ -1193,7 +1193,7 @@ function fClaudeChatNumberFieldCallback($args) {
  * without it the Settings API never sees the key, the option keeps its old
  *  value, and the box would appear impossible to turn off.
  */
-function fClaudeChatCheckboxFieldCallback($args) {
+function cb4c_fCheckboxFieldCallback($args) {
     $option = get_option($args['label_for'], '');
     echo '<input type="hidden" name="' . esc_attr($args['label_for']) . '" value="0">';
     echo '<input type="checkbox" id="' . esc_attr($args['label_for'])
@@ -1205,12 +1205,12 @@ function fClaudeChatCheckboxFieldCallback($args) {
     }
 }
 
-function fClaudeChatDropdownCallback($args) {
+function cb4c_fDropdownCallback($args) {
     $selected_model = get_option($args['label_for']);
 
     /* Get the current list from the API. If that fails, list only the
        saved model, so Save Settings does not clear it. */
-    $models = fClaudeChatGetModels();
+    $models = cb4c_fGetModels();
     if ( $models === false ) {
         $models = empty($selected_model) ? array() : array($selected_model => $selected_model);
         $args['description'] = 'Could not get the model list from the Anthropic API. '
@@ -1230,7 +1230,7 @@ function fClaudeChatDropdownCallback($args) {
     }
 }
 
-function fClaudeChatTextareaFieldCallback($args) {
+function cb4c_fTextareaFieldCallback($args) {
     $option = get_option($args['label_for'], '');
     echo '<textarea id="'   . esc_attr($args['label_for'])
         . '" name="'         . esc_attr($args['label_for'])
