@@ -92,11 +92,13 @@ publish : check-pub
 	incver.sh -p
 	-git ci -am Updated
 	git push origin develop
+	@echo 'If OK, make release'
 	@echo 'If done, make dist-clean'
 
 release : check-rel
 	# TBD - update subversion copy at wordpress.org
-	# cp VERSION VERSION-rel
+	#cp VERSION VERSION-rel
+	#@echo 'If done, make dist-clean'
 
 clean :
 	-find . -type f -name '*~' -exec rm {} \;
