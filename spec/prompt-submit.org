@@ -279,22 +279,50 @@ Sources:
 
 ** Response 3
 
-I'll replace the fixed list with a live call to the Models API when the Settings page loads, sorted newest first. If there's no API key or the call fails, it falls back to a default list.
+I'll replace the fixed list with a live call to the Models API when
+the Settings page loads, sorted newest first. If there's no API key or
+the call fails, it falls back to a default list.
 
-A PHP `define()` constant can't change at run time. So `cgClaudeChatModels` becomes the fallback list, and a new `fClaudeChatGetModels()` gets the live list for the dropdown.
+A PHP `define()` constant can't change at run time. So
+`cgClaudeChatModels` becomes the fallback list, and a new
+`fClaudeChatGetModels()` gets the live list for the dropdown.
 
-Now lint, run the security checks, and test the new function with a stubbed API response (shuffled order, plus the failure case).
+Now lint, run the security checks, and test the new function with a
+stubbed API response (shuffled order, plus the failure case).
 
-The Model list on the Settings page is now read from Anthropic's Models API each time the page is displayed, newest model first. I tested it with a fake API response, not a real key, and in that test it sorted out-of-order models newest first.
+The Model list on the Settings page is now read from Anthropic's
+Models API each time the page is displayed, newest model first. I
+tested it with a fake API response, not a real key, and in that test
+it sorted out-of-order models newest first.
 
-The updated files are in `chat-bot-for-claude-files.zip`, and the repo is still untouched. Lint passes and the security checks still show 0 errors.
+The updated files are in `chat-bot-for-claude-files.zip`, and the repo
+is still untouched. Lint passes and the security checks still show 0
+errors.
 
-- **How it works:** a new function, `fClaudeChatGetModels()`, calls `GET https://api.anthropic.com/v1/models` with the saved API key. It sorts the result by release date, newest first, and fills the dropdown with the API's display names.
-- **Why `cgClaudeChatModels` is still there:** a PHP `define()` constant can't change while the plugin runs, so it is now the fallback list, also ordered newest first. It's used when there's no API key yet or the API call fails. In that case the page says the live list couldn't be loaded, and the error goes to the PHP error log.
-- **Saving the model:** the model is no longer checked against the list, because that would mean a second API call on every save. Instead it must look like a model ID (`claude-` followed by letters, numbers, dots or dashes). A retired model saved earlier will still pass this check; choosing a model from the new list replaces it.
-- **Docs, beyond what you asked:** the Settings page now contacts Anthropic, and guideline 6 requires every external call to be described in `readme.txt`. So I added one line to its External services section. I also changed README.org's Claude Models section to describe the live list and show the default list newest first.
+- **How it works:** a new function, `fClaudeChatGetModels()`, calls
+  `GET https://api.anthropic.com/v1/models` with the saved API key. It
+  sorts the result by release date, newest first, and fills the
+  dropdown with the API's display names.
+- **Why `cgClaudeChatModels` is still there:** a PHP `define()`
+  constant can't change while the plugin runs, so it is now the
+  fallback list, also ordered newest first. It's used when there's no
+  API key yet or the API call fails. In that case the page says the
+  live list couldn't be loaded, and the error goes to the PHP error
+  log.
+- **Saving the model:** the model is no longer checked against the
+  list, because that would mean a second API call on every
+  save. Instead it must look like a model ID (`claude-` followed by
+  letters, numbers, dots or dashes). A retired model saved earlier
+  will still pass this check; choosing a model from the new list
+  replaces it.
+- **Docs, beyond what you asked:** the Settings page now contacts
+  Anthropic, and guideline 6 requires every external call to be
+  described in `readme.txt`. So I added one line to its External
+  services section. I also changed README.org's Claude Models section
+  to describe the live list and show the default list newest first.
 
-On the first visit, the dropdown can only load the live list after the API key has been entered and saved.
+On the first visit, the dropdown can only load the live list after the
+API key has been entered and saved.
 
 ** Prompt 4
 
@@ -303,15 +331,27 @@ that code and just set the pick list dynamically.
 
 ** Response 4
 
-I'll remove the `cgClaudeChatModels` constant and its fallback, so the dropdown is filled only from the API.
+I'll remove the `cgClaudeChatModels` constant and its fallback, so the
+dropdown is filled only from the API.
 
-I removed `cgClaudeChatModels`, so the Model list is now filled only from the Anthropic API, newest first. The updated files are in `chat-bot-for-claude-files.zip`; the repo is still untouched.
+I removed `cgClaudeChatModels`, so the Model list is now filled only
+from the Anthropic API, newest first. The updated files are in
+`chat-bot-for-claude-files.zip`; the repo is still untouched.
 
-When the API can't be reached (no key, a bad key, or a network error), the list shows only the currently saved model, along with a note to enter or check the API Key. Without that, the list would be empty and pressing Save Settings would erase the saved model. On a brand-new install there's no saved model, so the list is empty until a key is entered and saved.
+When the API can't be reached (no key, a bad key, or a network error),
+the list shows only the currently saved model, along with a note to
+enter or check the API Key. Without that, the list would be empty and
+pressing Save Settings would erase the saved model. On a brand-new
+install there's no saved model, so the list is empty until a key is
+entered and saved.
 
-I also changed README.org's Claude Models section to describe this and removed the old default model list from it. `readme.txt` didn't need changes.
+I also changed README.org's Claude Models section to describe this and
+removed the old default model list from it. `readme.txt` didn't need
+changes.
 
-Lint passes and the security checks still show 0 errors. In a test with a fake API, a good key gave the sorted list, and a bad or missing key showed only the saved model with the note.
+Lint passes and the security checks still show 0 errors. In a test
+with a fake API, a good key gave the sorted list, and a bad or missing
+key showed only the saved model with the note.
 
 ** Prompt 5
 
@@ -324,12 +364,25 @@ Also, remove references to temperature in README.org and readme.txt
 
 Now the docs.
 
-I've removed Temperature from all three files, and a search for "temperature" now finds nothing in any of them. The updated files are in `chat-bot-for-claude-files.zip`; the repo is still untouched.
+I've removed Temperature from all three files, and a search for
+"temperature" now finds nothing in any of them. The updated files are
+in `chat-bot-for-claude-files.zip`; the repo is still untouched.
 
-- **`chat-bot-for-claude.php`:** the setting, its sanitize function, the Settings page field, the read of the option, and the code that added it to the API request are all gone. In a test where an old temperature value was still saved, the request sent only the model, max tokens and message. Lint passes and the security checks still show 0 errors.
-- **`readme.txt`:** the feature line now reads "Choice of Claude model and max tokens."
-- **README.org:** removed the Temperature lines from Configuration and the Settings list, and the old "Fixed temperature…" note. The API-support feature line now says "model, max tokens, and more."
+- **`chat-bot-for-claude.php`:** the setting, its sanitize function,
+  the Settings page field, the read of the option, and the code that
+  added it to the API request are all gone. In a test where an old
+  temperature value was still saved, the request sent only the model,
+  max tokens and message. Lint passes and the security checks still
+  show 0 errors.
+- **`readme.txt`:** the feature line now reads "Choice of Claude model
+  and max tokens."
+- **README.org:** removed the Temperature lines from Configuration and
+  the Settings list, and the old "Fixed temperature…" note. The
+  API-support feature line now says "model, max tokens, and more."
 
-I also changed one stale line in the `readme.txt` changelog to "The Model list is now read from the Anthropic Models API."
+I also changed one stale line in the `readme.txt` changelog to "The
+Model list is now read from the Anthropic Models API."
 
-Sites that already saved a temperature still have that value in the database. The plugin no longer reads it, so it's harmless, but the plugin has no uninstall cleanup to delete it.
+Sites that already saved a temperature still have that value in the
+database. The plugin no longer reads it, so it's harmless, but the
+plugin has no uninstall cleanup to delete it.

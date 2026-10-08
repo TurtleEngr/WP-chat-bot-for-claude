@@ -33,8 +33,9 @@ Features:
 == Installation ==
 
 1. Install and activate this plugin.
-2. Go to Settings > Claude Chat and enter your Anthropic API key, then
-   choose a model.
+2. Go to Settings > Claude Chat, enter your Anthropic API key and save.
+3. After saving the API Key the "Model" pick list should show some
+   model names. 
 3. Add the `[claude_chat]` shortcode to a page or post.
 4. On the page, let the user's know their questions and answers are
    being logged, and how often the log is cleared.
@@ -52,7 +53,9 @@ Put the shortcode `[claude_chat]` on any page or post.
 
 = Where can I find more help? =
 
-See https://github.com/TurtleEngr/WP-chat-bot-for-claude
+See https://github.com/TurtleEngr/WP-chat-bot-for-claude for more
+set-up documentation. For example, what do you put in the "Prefix
+Prompt"?
 
 = I have privacy concerns =
 
