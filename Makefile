@@ -1,5 +1,19 @@
 # Makefile for WP-chat-bot-for-claude
 
+# Required Packages:
+  # git
+  # make
+  # pandoc
+  # subversion
+
+# Required Scripts:
+  # org2html.sh
+  # rm-trailing-sp
+  # incver.sh
+
+# The scripts can be found at:
+# https://github.com/TurtleEngr/my-utility-scripts/tree/main/bin
+
 # ----------
 # Macros
 
@@ -23,6 +37,7 @@ mDocList = \
 
 mBranch = $$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
 
+# A user and ssh key is need for "save" and "publish" to this server
 mServer = moria.whyayh.com
 mPubDev = /rel/development/software/own/$(mProj)
 mPubRel = /rel/released/software/own/$(mProj)
@@ -40,7 +55,7 @@ usage :
 	@echo "clean - rm tmp files"
 	@echo "dist-clean - clean and remove dist dir"
 	@echo
-	@echo "VERSION VERSION-dev VERSION-rel"
+	@echo "VERSION VERSION-dev VERSION-pub VERSION-rel"
 	@echo $$(cat VERSION*)
 	@git st
 
@@ -61,7 +76,7 @@ save development : check-dev
 	git push origin $(mBranch)
 	@echo 'If OK, make publish'
 
-publish release : check-rel
+publish : check-pub
 	if [[ "$(mBranch)" != "develop" ]]; then exit 1; fi
 	-git ci -am Updated
 	git tag "ver-$$(cat VERSION)"
@@ -73,10 +88,15 @@ publish release : check-rel
 	git co develop
 	-ssh $(mServer) mkdir -p $(mPubRel)
 	rsync -a README.* readme.txt dist/chat-bot-for-claude-$$(cat VERSION).zip $(mServer):$(mPubRel)
-	cp VERSION VERSION-rel
+	cp VERSION VERSION-pub
+	incver.sh -p
 	-git ci -am Updated
 	git push origin develop
 	@echo 'If done, make dist-clean'
+
+release : check-rel
+	# TBD - update subversion copy at wordpress.org
+	# cp VERSION VERSION-rel
 
 clean :
 	-find . -type f -name '*~' -exec rm {} \;
@@ -108,6 +128,13 @@ README.md : README.org VERSION
 check-dev :
 	if diff -q VERSION VERSION-dev >/dev/null 2>&1; then \
 		echo "Development versions must be different."; \
+		echo "increment and rebuild."; \
+		exit 1; \
+	fi
+
+check-pub :
+	if diff -q VERSION VERSION-pub >/dev/null 2>&1; then \
+		echo "Public versions must be different."; \
 		echo "increment and rebuild."; \
 		exit 1; \
 	fi
