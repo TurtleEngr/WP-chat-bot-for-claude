@@ -19,16 +19,30 @@ on your site.
 
 Features:
 
-* `[claude_chat]` shortcode to place the chat box on any page or post.
+* Put the `[claude_chat]` shortcode on any page or post and the chat
+  box will be ready for user questions.
+
 * Choice of Claude model and max tokens.
-* Optional Prefix Prompt, sent as the system prompt on every request.
-* Optional "Follow Links": lets Claude fetch web pages named in the
-  prompt or the visitor's question.
-* Optional list of pre-fetch URLs whose text is added to the system
-  prompt (cached for one hour).
+
+* A "Prefix Prompt" is sent as the system prompt on every request.
+  This is where the "personality," "goals," and "limits" are
+  specified.  To save costs the system prompt is cached for an hour.
+  
+* "Follow Links" checkbox. If checked, Claude is allowed to fetch
+  external web links named in the prompt or in the visitor's question.
+
+* A list of pre-fetch URLs can be added to the system prompt (cached
+  for one hour).
+
+* To keep costs down, there are limits to internal query times, and
+  the number of external links followed. (See Code Customization,
+  Constants.)
+
 * Per-IP rate limit of 10 requests per minute.
-* Log of questions and answers, stored outside the web root, with
-  "View Log" and "Clear Logs" buttons on the settings page.
+
+* The "log" of questions and answers is stored outside the web root so
+  only the admin interface can view the log. The "View Log" and "Clear
+  Logs" buttons are on the settings page.
 
 == Installation ==
 
@@ -59,14 +73,14 @@ Prompt"?
 
 = I have privacy concerns =
 
-Every visitor question and Claude's answer are saved to
-`chat-bot-for-claude-log/claude_log.org`, in the directory one level
-above the WordPress root (for example, above `public_html`), so the
-file cannot be read from the web. Administrators can open it with the
-"View Log" button on the settings page, and empty it with the "Clear
-Logs" button. The admin should tell users how long logs are kept.
+Every user question and Claude's answer are saved to `claude_log.org`,
+in the directory one level above the WordPress root, so the file
+cannot be read with a web browseer.  Administrators can open it with
+the "View Log" button on the settings page, and empty it with the
+"Clear Logs" button. The admin should tell users how long they keep
+the logs.
 
-Errors (no visitor messages) are written to the PHP error log.
+User messages might be written to the PHP error log.
 
 A user's IP address is used only as an MD5-hashed key for the
 one-minute rate limit. It is not logged or sent to Anthropic.
@@ -80,21 +94,21 @@ replies. It does nothing until an administrator enters an Anthropic
 API key on the settings page.
 
 * Service: Anthropic Messages API, https://api.anthropic.com/v1/messages
-* When: each time a visitor sends a message from the chat box.
-* Data sent: the visitor's message, the Prefix Prompt, any pre-fetched
+* When: each time a user sends a message from the chat box.
+* Data sent: the user's message, the Prefix Prompt, any pre-fetched
   page text, the selected model and settings, and the site's API key.
-  The visitor's IP address is not sent.
+  The user's IP address is not sent.
 * Also: each time an administrator opens the settings page, the
   plugin sends the API key to https://api.anthropic.com/v1/models to
-  get the list of models that key can use. No visitor data is sent.
+  get the list of models that key can use. No user data is sent.
 * Anthropic Commercial Terms: https://www.anthropic.com/legal/commercial-terms
 * Anthropic Privacy Policy: https://www.anthropic.com/legal/privacy
 
 When "Follow Links" is checked, or when pre-fetch URLs are entered,
 the site's server also makes HTTP GET requests to those web pages
 (only public http/https addresses; private and local addresses are
-blocked). Only the URL is sent; no visitor data is included. The
-terms and privacy policy of each site you list apply.
+blocked). Only the URL is sent; no user data is included. The terms
+and privacy policy of each site you list apply.
 
 == Screenshots ==
 
@@ -107,11 +121,11 @@ terms and privacy policy of each site you list apply.
 * Changes for WordPress.org plugin directory guidelines: GPL license,
   text domain, settings sanitizing, input sanitizing, output escaping.
 * Cleaned up build process.
-* The Model list is now read from the Anthropic Models API.
+* The Model list is read from the Anthropic Models API.
 * The chat log moved to `chat-bot-for-claude-log/claude_log.org`,
-  above the WordPress root, so it is not public.
-* Added a "View Log" button. "Clear Logs" now clears only the chat log.
-* Errors are now written to the PHP error log.
+  above the WordPress root, so it is not publicly readable.
+* Added a "View Log" button. "Clear Logs" only clears `claude_log.org`.
+* Errors are written to the PHP error log.
 
 = 2.3 =
 * Put version number on pages.
@@ -125,7 +139,7 @@ terms and privacy policy of each site you list apply.
 * Added memory limit protections. When the 'Hostinger Easy Onboarding'
   plugin is active with 'NextGEN Gallery' plugin, an out-of-memory
   error is thrown when saving in Claude Settings form.  'Hostinger
-  Easy Onboarding' is now disabled and I'll consider replacing
+  Easy Onboarding' is disabled and I'll consider replacing
   NextGen.
 
 = 1.6 =
