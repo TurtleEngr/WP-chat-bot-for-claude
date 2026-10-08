@@ -15,43 +15,65 @@ newest to oldest, using the saved API Key. If there is no API Key, or
 the API call fails, only the saved model is listed, with a note to enter
 or check the API Key.
 
+Currently (as of 2026) it looks like the Claude models are valid for at
+least a year. If the chat bot stops working, visit the admin page to see
+a refreshed list of models. You can look for deprecated models at:
+[Model
+Deprecations](https://platform.claude.com/docs/en/about-claude/model-deprecations).
+Also you will want to look at the
+[pricing](https://platform.claude.com/docs/en/about-claude/pricing) page
+for the models.
+
 ## Features
 
--   **Easy Integration**: Use a shortcode to seamlessly integrate the
-    Claude AI chat interface into your WordPress site.
+-   Put the `[claude_chat]`{.verbatim} shortcode on any page or post and
+    the chat box will be ready for user questions.
 
--   **Admin Settings**: Configure API settings directly from the
-    WordPress admin panel.
+-   Choice of Claude model and max tokens.
 
--   **Customizable Interface**: Modify the chat interface appearance and
-    behavior with ease.
+-   A \"Prefix Prompt\" is sent as the system prompt on every request.
+    This is where the \"personality,\" \"goals,\" and \"limits\" are
+    specified. To save costs the system prompt is cached for an hour.
 
--   **Claude API Support**: Full support for Claude API parameters such
-    as model, max tokens, and more.
+-   \"Follow Links\" checkbox. If checked, Claude is allowed to fetch
+    external web links named in the prompt or in the visitor\'s
+    question.
 
--   **AJAX-Based**: Smooth, responsive chat experience powered by AJAX.
+-   A list of pre-fetch URLs can be added to the system prompt (cached
+    for one hour).
+
+-   To keep costs down, there are limits to internal query times, and
+    the number of external links followed. (See Code Customization,
+    Constants.)
+
+-   Per-IP rate limit of 10 requests per minute.
+
+-   The \"log\" of questions and answers is stored outside the web root
+    so only the admin interface can view the log. The \"View Log\" and
+    \"Clear Logs\" buttons are on the settings page.
 
 ## Install Zip File
 
-1.  Download the latest zip file from:
+1.  Download the latest zip file from the \"release\" directory at:
     [WP-chat-bot-for-claude](https://moria.whyayh.com/rel/released/software/own/WP-chat-bot-for-claude/)
-2.  At the WP plugin admin page, click on \"Add Plugin\", click on
+2.  With the WP plugin admin page, click on \"Add Plugin\", click on
     \"Upload Plugin\"
 3.  Browse to the zip file and select it, open, click on \"Install Now\"
 4.  Activate the plugin.
 5.  Navigate to \'Settings\' \> \'Claude Chat\' to configure your API
-    settings.
+    settings, and save.
+6.  See the \"Admin Configuration\" section for more.
 
 ## Build/Install
 
 Source: <https://github.com/TurtleEngr/WP-chat-bot-for-claude>
 
-1.  Clone this repo
+1.  Clone (or fork) this repo.
 2.  Or click on the lastest \"tag,\" select the \"Source code\" link to
     download the zip file, then unzip the file.
 3.  Run \"make build\" to build and create the zip package.
-4.  Install `dist/chat-bot-for-claude-2.5.0.zip`{.verbatim} plugin,
-    with the above **Install Zip File** directions.
+4.  Install `dist/chat-bot-for-claude-VER.zip`{.verbatim} plugin, with
+    the above **Install Zip File** directions.
 
 ## Usage
 
@@ -61,13 +83,19 @@ To display the chat interface on any page or post, use the shortcode:
 [claude_chat]
 ```
 
-## Configuration
+On the page or post, you will want to add some directions around the
+chat area. See
+[example-settings.org](https://github.com/TurtleEngr/WP-chat-bot-for-claude/blob/develop/example-settings.org)
+for an example page.
+
+## Admin Configuration
 
 Go to \'Settings\' \> \'Claude Chat\' in the WordPress admin panel to
 configure the following options:
 
 -   **API Key**: Enter your Claude API key.
--   **Model**: Select the Claude model you wish to use.
+-   **Model**: Select the Claude model you wish to use. (Do this after
+    saving the API Key.)
 -   **Max Tokens**: Set the maximum number of tokens for the response.
 -   **Follow Links**: Checkbox. If checked URLs in the prompts will be
     followed.
@@ -86,7 +114,13 @@ one level above the WordPress root (for example, above
 `public_html`{.verbatim}), so it cannot be read from the web. Errors are
 written to the PHP error log with `error_log()`{.verbatim}.
 
-## Customization
+See
+[example-settings.org](https://github.com/TurtleEngr/WP-chat-bot-for-claude/blob/develop/example-settings.org)
+file for a example prompt.
+
+## Code Customization
+
+### Constants
 
 These internal constants can be changed. The defaults values are shown
 here. Also, some of these values will be shown in the Claude Chat
@@ -95,6 +129,8 @@ Settings admin form.
 -   **cgClaudeChatFetchTimeOut**: 5sec for each URL fetch
 
 -   **cgClaudeChatResponseBudget**: 20sec for the whole response
+
+-   **cgClaudeChatRateLimit**: 10 per min
 
 -   **cgClaudeChatPreFetchTtl**: 3600 sec (1 hour)
 
@@ -133,15 +169,7 @@ Settings admin form.
 
 -   **cgClaudeChatLogFile**: `claude_log.org`{.verbatim}
 
--   **Styling**: Customize the chat interface by editing the
-    `css/chat-bot-for-claude.css`{.verbatim} file.
-
--   **JavaScript**: Add or modify functionality by editing the
-    `js/chat-bot-for-claude.js`{.verbatim} file.
-
-## Enhancements
-
-### Added: Prefix Prompt
+### Prefix Prompt
 
 Registered in fClaudeChatRegisterSettings() with
 `sanitize_textarea_field`{.verbatim} as its sanitize callback
@@ -165,14 +193,13 @@ block tells Anthropic\'s API to cache the system prompt across repeated
 requests --- reducing latency and token cost for long prompts. The
 anthropic-beta: prompt-caching-2024-07-31 header is added automatically.
 
-### Minor improvements
+### js or css
 
-The Model list is read from the Models API when the Settings page is
-displayed (see **Claude Models** above).
+-   **Styling**: Customize the chat interface by editing the
+    `css/chat-bot-for-claude.css`{.verbatim} file.
 
-Bumped Max Tokens ceiling to 8096 to match modern model limits.
-
-### js or css changes
+-   **JavaScript**: Add or modify functionality by editing the
+    `js/chat-bot-for-claude.js`{.verbatim} file.
 
 js/chat-bot-for-claude.js --- The JavaScript only handles the chat UI:
 capturing the user\'s input, sending it to admin-ajax.php via AJAX, and
@@ -187,7 +214,7 @@ needed.
 
 ## Requirements
 
--   **WordPress**: Version 6.0 or higher. (tested with 6.9.4)
+-   **WordPress**: Version 6.0 or higher. (tested with 6.9.4, and 7.1)
 -   **PHP**: Version 7.4 or higher. (tested with 8.3.30)
 -   **Claude API Key**: A valid Claude API key is required.
 
@@ -232,7 +259,7 @@ needed.
 
 ## Support
 
-For support, feature requests, or to report issues, please open an issue
+For support, feature requests, or to report issues, please open an Issue
 on the GitHub repository.
 
 ## License
@@ -247,4 +274,4 @@ TurtleEngr
 ## Note
 
 This code was initially derived from:
-\[(VolkanSah/WP-Claude-Interface)\]\[<https://github.com/VolkanSah/WP-Claude-Interface>\]
+[VolkanSah/WP-Claude-Interface](https://github.com/VolkanSah/WP-Claude-Interface)

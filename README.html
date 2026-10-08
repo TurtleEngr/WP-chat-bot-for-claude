@@ -80,45 +80,79 @@
   newest to oldest, using the saved API Key. If there is no API Key, or the
   API call fails, only the saved model is listed, with a note to enter or
   check the API Key.</p>
+  <p>Currently (as of 2026) it looks like the Claude models are valid for at
+  least a year. If the chat bot stops working, visit the admin page to see a
+  refreshed list of models. You can look for deprecated models at: <a href=
+  "https://platform.claude.com/docs/en/about-claude/model-deprecations">Model
+  Deprecations</a>. Also you will want to look at the <a href=
+  "https://platform.claude.com/docs/en/about-claude/pricing">pricing</a> page
+  for the models.</p>
   <hr />
   <h2 id="features">Features</h2>
-  <p><strong>Easy Integration</strong>: Use a shortcode to seamlessly
-  integrate the Claude AI chat interface into your WordPress site.</p>
-  <p><strong>Admin Settings</strong>: Configure API settings directly from
-  the WordPress admin panel.</p>
-  <p><strong>Customizable Interface</strong>: Modify the chat interface
-  appearance and behavior with ease.</p>
-  <p><strong>Claude API Support</strong>: Full support for Claude API
-  parameters such as model, max tokens, and more.</p>
-  <p><strong>AJAX-Based</strong>: Smooth, responsive chat experience powered
-  by AJAX.</p>
+  <ul>
+    <li>
+      <p>Put the <code class="verbatim">[claude_chat]</code> shortcode on any
+      page or post and the chat box will be ready for user questions.</p>
+    </li>
+    <li>
+      <p>Choice of Claude model and max tokens.</p>
+    </li>
+    <li>
+      <p>A "Prefix Prompt" is sent as the system prompt on every request.
+      This is where the "personality," "goals," and "limits" are specified.
+      To save costs the system prompt is cached for an hour.</p>
+    </li>
+    <li>
+      <p>"Follow Links" checkbox. If checked, Claude is allowed to fetch
+      external web links named in the prompt or in the visitor's
+      question.</p>
+    </li>
+    <li>
+      <p>A list of pre-fetch URLs can be added to the system prompt (cached
+      for one hour).</p>
+    </li>
+    <li>
+      <p>To keep costs down, there are limits to internal query times, and
+      the number of external links followed. (See Code Customization,
+      Constants.)</p>
+    </li>
+    <li>
+      <p>Per-IP rate limit of 10 requests per minute.</p>
+    </li>
+    <li>
+      <p>The "log" of questions and answers is stored outside the web root so
+      only the admin interface can view the log. The "View Log" and "Clear
+      Logs" buttons are on the settings page.</p>
+    </li>
+  </ul>
   <hr />
   <h2 id="install-zip-file">Install Zip File</h2>
   <ol>
-    <li>Download the latest zip file from: <a href=
-    "https://moria.whyayh.com/rel/released/software/own/WP-chat-bot-for-claude/">
+    <li>Download the latest zip file from the "release" directory at:
+      <a href="https://moria.whyayh.com/rel/released/software/own/WP-chat-bot-for-claude/">
       WP-chat-bot-for-claude</a>
     </li>
-    <li>At the WP plugin admin page, click on "Add Plugin", click on "Upload
-    Plugin"</li>
+    <li>With the WP plugin admin page, click on "Add Plugin", click on
+    "Upload Plugin"</li>
     <li>Browse to the zip file and select it, open, click on "Install
     Now"</li>
     <li>Activate the plugin.</li>
     <li>Navigate to 'Settings' &gt; 'Claude Chat' to configure your API
-    settings.</li>
+    settings, and save.</li>
+    <li>See the "Admin Configuration" section for more.</li>
   </ol>
   <hr />
   <h2 id="buildinstall">Build/Install</h2>
   <p>Source: <a href=
   "https://github.com/TurtleEngr/WP-chat-bot-for-claude">https://github.com/TurtleEngr/WP-chat-bot-for-claude</a></p>
   <ol>
-    <li>Clone this repo</li>
+    <li>Clone (or fork) this repo.</li>
     <li>Or click on the lastest "tag," select the "Source code" link to
     download the zip file, then unzip the file.</li>
     <li>Run "make build" to build and create the zip package.</li>
     <li>Install <code class=
-    "verbatim">dist/chat-bot-for-claude-2.5.0.zip</code> plugin, with the
-    above <strong>Install Zip File</strong> directions.</li>
+    "verbatim">dist/chat-bot-for-claude-VER.zip</code> plugin, with the above
+    <strong>Install Zip File</strong> directions.</li>
   </ol>
   <hr />
   <h2 id="usage">Usage</h2>
@@ -126,70 +160,115 @@
   shortcode:</p>
   <pre class="example"><code>[claude_chat]
 </code></pre>
+  <p>On the page or post, you will want to add some directions around the
+  chat area. See <a href=
+  "https://github.com/TurtleEngr/WP-chat-bot-for-claude/blob/develop/example-settings.org">
+  example-settings.org</a> for an example page.</p>
   <hr />
-  <h2 id="configuration">Configuration</h2>
+  <h2 id="admin-configuration">Admin Configuration</h2>
   <p>Go to 'Settings' &gt; 'Claude Chat' in the WordPress admin panel to
   configure the following options:</p>
-  <p><strong>API Key</strong>: Enter your Claude API key.</p>
-  <p><strong>Model</strong>: Select the Claude model you wish to use.</p>
-  <p><strong>Max Tokens</strong>: Set the maximum number of tokens for the
-  response.</p>
-  <p><strong>Follow Links</strong>: Checkbox. If checked URLs in the prompts
-  will be followed.</p>
-  <p><strong>List of pre-fetch URLs</strong>: One URL per line. Each URL will
-  be read and added to the prompts.</p>
-  <p><strong>Prefix Prompt</strong>: Define a prompt that is sent as the
-  system prompt on every request.</p>
-  <p><strong>Save Settings</strong> button: Save the current settings.</p>
-  <p><strong>View Log</strong> button: open the chat log (<code class=
-  "verbatim">claude_log.org</code>) in a new browser tab.</p>
-  <p><strong>Clear Logs</strong> button: remove the text in the chat log
-  (<code class="verbatim">claude_log.org</code>).</p>
+  <ul>
+    <li><strong>API Key</strong>: Enter your Claude API key.</li>
+    <li><strong>Model</strong>: Select the Claude model you wish to use. (Do
+    this after saving the API Key.)</li>
+    <li><strong>Max Tokens</strong>: Set the maximum number of tokens for the
+    response.</li>
+    <li><strong>Follow Links</strong>: Checkbox. If checked URLs in the
+    prompts will be followed.</li>
+    <li><strong>List of pre-fetch URLs</strong>: One URL per line. Each URL
+    will be read and added to the prompts.</li>
+    <li><strong>Prefix Prompt</strong>: Define a prompt that is sent as the
+    system prompt on every request.</li>
+    <li><strong>Save Settings</strong> button: Save the current
+    settings.</li>
+    <li><strong>View Log</strong> button: open the chat log (<code class=
+    "verbatim">claude_log.org</code>) in a new browser tab.</li>
+    <li><strong>Clear Logs</strong> button: remove the text in the chat log
+    (<code class="verbatim">claude_log.org</code>).</li>
+  </ul>
   <p>The chat log is in the <code class=
   "verbatim">chat-bot-for-claude-log</code> directory, one level above the
   WordPress root (for example, above <code class=
   "verbatim">public_html</code>), so it cannot be read from the web. Errors
   are written to the PHP error log with <code class=
   "verbatim">error_log()</code>.</p>
+  <p>See <a href=
+  "https://github.com/TurtleEngr/WP-chat-bot-for-claude/blob/develop/example-settings.org">
+  example-settings.org</a> file for a example prompt.</p>
   <hr />
-  <h2 id="customization">Customization</h2>
+  <h2 id="code-customization">Code Customization</h2>
+  <h3 id="constants">Constants</h3>
   <p>These internal constants can be changed. The defaults values are shown
   here. Also, some of these values will be shown in the Claude Chat Settings
   admin form.</p>
-  <p><strong>cgClaudeChatFetchTimeOut</strong>: 5sec for each URL fetch</p>
-  <p><strong>cgClaudeChatResponseBudget</strong>: 20sec for the whole
-  response</p>
-  <p><strong>cgClaudeChatPreFetchTtl</strong>: 3600 sec (1 hour)</p>
-  <p><strong>cgClaudeChatMaxPreFetchUrls</strong>: 10</p>
-  <p>Pre-fetch list limits. Content is cached in a transient for this many
-  seconds, keyed by a hash of the URL list.</p>
-  <p><strong>cgClaudeChatMaxFetchBytes</strong>: 256 KB</p>
-  <p><strong>cgClaudeChatMaxFetchChars</strong>: 20 KB</p>
-  <p>The byte cap protects PHP memory; the character cap protects the token
-  budget — a single large page can otherwise crowd out the Prefix Prompt and
-  the user's actual question. */</p>
-  <p><strong>cgClaudeChatMaxToolRounds</strong>: 5</p>
-  <p>Max number of <code class="verbatim">send/tool_result</code> round
-  trips. The response budget is the primary stop condition; this is a
-  backstop so a model that keeps asking for cheap, fast fetches cannot loop
-  indefinitely inside the budget.</p>
-  <p><strong>cgClaudeChatMaxResponseBytes</strong>: 4 MB</p>
-  <p><strong>cgClaudeChatMaxLogDumpChars</strong>: 4 KB</p>
-  <p><strong>cgClaudeChatMaxPrefixPrompt</strong>: 65 KB</p>
-  <p><strong>cgClaudeChatLogDir</strong>: <code class=
-  "verbatim">dirname(ABSPATH) . '/chat-bot-for-claude-log'</code></p>
-  <p>The directory one level above the WordPress root. If WordPress is
-  installed in a subdirectory of <code class="verbatim">public_html</code>,
-  change this so the log is still outside the web root.</p>
-  <p><strong>cgClaudeChatLogFile</strong>: <code class=
-  "verbatim">claude_log.org</code></p>
-  <p><strong>Styling</strong>: Customize the chat interface by editing the
-  <code class="verbatim">css/chat-bot-for-claude.css</code> file.</p>
-  <p><strong>JavaScript</strong>: Add or modify functionality by editing the
-  <code class="verbatim">js/chat-bot-for-claude.js</code> file.</p>
-  <hr />
-  <h2 id="enhancements">Enhancements</h2>
-  <h3 id="added-prefix-prompt">Added: Prefix Prompt</h3>
+  <ul>
+    <li>
+      <p><strong>cgClaudeChatFetchTimeOut</strong>: 5sec for each URL
+      fetch</p>
+    </li>
+    <li>
+      <p><strong>cgClaudeChatResponseBudget</strong>: 20sec for the whole
+      response</p>
+    </li>
+    <li>
+      <p><strong>cgClaudeChatRateLimit</strong>: 10 per min</p>
+    </li>
+    <li>
+      <p><strong>cgClaudeChatPreFetchTtl</strong>: 3600 sec (1 hour)</p>
+    </li>
+    <li>
+      <p><strong>cgClaudeChatMaxPreFetchUrls</strong>: 10</p>
+      <ul>
+        <li>Pre-fetch list limits. Content is cached in a transient for this
+        many seconds, keyed by a hash of the URL list.</li>
+      </ul>
+    </li>
+    <li>
+      <p><strong>cgClaudeChatMaxFetchBytes</strong>: 256 KB</p>
+    </li>
+    <li>
+      <p><strong>cgClaudeChatMaxFetchChars</strong>: 20 KB</p>
+      <ul>
+        <li>The byte cap protects PHP memory; the character cap protects the
+        token budget — a single large page can otherwise crowd out the Prefix
+        Prompt and the user's actual question. */</li>
+      </ul>
+    </li>
+    <li>
+      <p><strong>cgClaudeChatMaxToolRounds</strong>: 5</p>
+      <ul>
+        <li>Max number of <code class="verbatim">send/tool_result</code>
+        round trips. The response budget is the primary stop condition; this
+        is a backstop so a model that keeps asking for cheap, fast fetches
+        cannot loop indefinitely inside the budget.</li>
+      </ul>
+    </li>
+    <li>
+      <p><strong>cgClaudeChatMaxResponseBytes</strong>: 4 MB</p>
+    </li>
+    <li>
+      <p><strong>cgClaudeChatMaxLogDumpChars</strong>: 4 KB</p>
+    </li>
+    <li>
+      <p><strong>cgClaudeChatMaxPrefixPrompt</strong>: 65 KB</p>
+    </li>
+    <li>
+      <p><strong>cgClaudeChatLogDir</strong>: <code class=
+      "verbatim">dirname(ABSPATH) . '/chat-bot-for-claude-log'</code></p>
+      <ul>
+        <li>The directory one level above the WordPress root. If WordPress is
+        installed in a subdirectory of <code class=
+        "verbatim">public_html</code>, change this so the log is still
+        outside the web root.</li>
+      </ul>
+    </li>
+    <li>
+      <p><strong>cgClaudeChatLogFile</strong>: <code class=
+      "verbatim">claude_log.org</code></p>
+    </li>
+  </ul>
+  <h3 id="prefix-prompt">Prefix Prompt</h3>
   <p>Registered in fClaudeChatRegisterSettings() with <code class=
   "verbatim">sanitize_textarea_field</code> as its sanitize callback
   (multi-line safe).</p>
@@ -208,11 +287,17 @@
   across repeated requests — reducing latency and token cost for long
   prompts. The anthropic-beta: prompt-caching-2024-07-31 header is added
   automatically.</p>
-  <h3 id="minor-improvements">Minor improvements</h3>
-  <p>The Model list is read from the Models API when the Settings page is
-  displayed (see <strong>Claude Models</strong> above).</p>
-  <p>Bumped Max Tokens ceiling to 8096 to match modern model limits.</p>
-  <h3 id="js-or-css-changes">js or css changes</h3>
+  <h3 id="js-or-css">js or css</h3>
+  <ul>
+    <li>
+      <p><strong>Styling</strong>: Customize the chat interface by editing
+      the <code class="verbatim">css/chat-bot-for-claude.css</code> file.</p>
+    </li>
+    <li>
+      <p><strong>JavaScript</strong>: Add or modify functionality by editing
+      the <code class="verbatim">js/chat-bot-for-claude.js</code> file.</p>
+    </li>
+  </ul>
   <p>js/chat-bot-for-claude.js — The JavaScript only handles the chat UI:
   capturing the user's input, sending it to admin-ajax.php via AJAX, and
   displaying the response. None of that flow changed. The prefix prompt is
@@ -224,10 +309,14 @@
   needed.</p>
   <hr />
   <h2 id="requirements">Requirements</h2>
-  <p><strong>WordPress</strong>: Version 6.0 or higher. (tested with
-  6.9.4)</p>
-  <p><strong>PHP</strong>: Version 7.4 or higher. (tested with 8.3.30)</p>
-  <p><strong>Claude API Key</strong>: A valid Claude API key is required.</p>
+  <ul>
+    <li><strong>WordPress</strong>: Version 6.0 or higher. (tested with
+    6.9.4, and 7.1)</li>
+    <li><strong>PHP</strong>: Version 7.4 or higher. (tested with
+    8.3.30)</li>
+    <li><strong>Claude API Key</strong>: A valid Claude API key is
+    required.</li>
+  </ul>
   <h3 id="screenshots">Screenshots</h3>
   <h4>Public View</h4>
   <figure>
@@ -245,35 +334,51 @@
       claude admin view
     </figcaption>
   </figure>
-  <p>API Key - Put your Claude API key here</p>
-  <p>Model - Pick the model you want</p>
-  <p>Max Tokens - Range: 1 to 8096</p>
-  <p>Follow Links - checkbox</p>
-  <p>When checked, Claude may call the <code class=
-  "verbatim">fetch_url</code> tool to read URLs named in the prompt or the
-  user question. Each fetch times out after 5s; the whole fetch loop stops
-  after 20s and answers with what it has. Adds an API round trip per batch of
-  fetches, so replies are slower and cost more tokens.</p>
-  <p>List of pre-fetch URLs - textbox</p>
-  <p>Optional. One URL per line, max 10. These are always fetched and added
-  to the system prompt, whether or not Follow Links is checked. Content is
-  cached for 60 minutes and truncated to 20,000 characters per page. Leave
-  blank to disable.</p>
-  <p>Prefix Prompt - textbox</p>
-  <p>Optional. Sent as the system prompt on every request, keeping it
-  separate from user input. Uses <code class="verbatim">cache_control</code>
-  to save costs. Leave blank to disable. Max 65,536 bytes.</p>
-  <p>Save Settings - Save any changes.</p>
-  <p>View Log - Open the chat log (<code class=
-  "verbatim">claude_log.org</code>) in a new browser tab.</p>
-  <p>Clear Logs - Remove the text in the chat log (<code class=
-  "verbatim">claude_log.org</code>).</p>
-  <p>The chat log is at: <code class=
-  "verbatim">WP-ROOT/../chat-bot-for-claude-log/claude_log.org</code></p>
-  <p>Errors are written to the PHP error log.</p>
+  <ul>
+    <li>API Key - Put your Claude API key here</li>
+    <li>Model - Pick the model you want</li>
+    <li>Max Tokens - Range: 1 to 8096</li>
+    <li>Follow Links - checkbox
+      <ul>
+        <li>When checked, Claude may call the <code class=
+        "verbatim">fetch_url</code> tool to read URLs named in the prompt or
+        the user question. Each fetch times out after 5s; the whole fetch
+        loop stops after 20s and answers with what it has. Adds an API round
+        trip per batch of fetches, so replies are slower and cost more
+        tokens.</li>
+      </ul>
+    </li>
+    <li>List of pre-fetch URLs - textbox
+      <ul>
+        <li>Optional. One URL per line, max 10. These are always fetched and
+        added to the system prompt, whether or not Follow Links is checked.
+        Content is cached for 60 minutes and truncated to 20,000 characters
+        per page. Leave blank to disable.</li>
+      </ul>
+    </li>
+    <li>Prefix Prompt - textbox
+      <ul>
+        <li>Optional. Sent as the system prompt on every request, keeping it
+        separate from user input. Uses <code class=
+        "verbatim">cache_control</code> to save costs. Leave blank to
+        disable. Max 65,536 bytes.</li>
+      </ul>
+    </li>
+    <li>Save Settings - Save any changes.</li>
+    <li>View Log - Open the chat log (<code class=
+    "verbatim">claude_log.org</code>) in a new browser tab.</li>
+    <li>Clear Logs - Remove the text in the chat log (<code class=
+    "verbatim">claude_log.org</code>).
+      <ul>
+        <li>The chat log is at: <code class=
+        "verbatim">WP-ROOT/../chat-bot-for-claude-log/claude_log.org</code></li>
+        <li>Errors are written to the PHP error log.</li>
+      </ul>
+    </li>
+  </ul>
   <hr />
   <h2 id="support">Support</h2>
-  <p>For support, feature requests, or to report issues, please open an issue
+  <p>For support, feature requests, or to report issues, please open an Issue
   on the GitHub repository.</p>
   <hr />
   <h2 id="license">License</h2>
@@ -284,8 +389,7 @@
   <p>TurtleEngr</p>
   <hr />
   <h2 id="note">Note</h2>
-  <p>This code was initially derived from:
-  [(VolkanSah/WP-Claude-Interface)][<a href=
-  "https://github.com/VolkanSah/WP-Claude-Interface">https://github.com/VolkanSah/WP-Claude-Interface</a>]</p>
+  <p>This code was initially derived from: <a href=
+  "https://github.com/VolkanSah/WP-Claude-Interface">VolkanSah/WP-Claude-Interface</a></p>
 </body>
 </html>
