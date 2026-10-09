@@ -981,8 +981,17 @@ function cb4c_fViewLog() {
     header('Content-Type: text/plain; charset=utf-8');
     header('X-Content-Type-Options: nosniff');
 
-    if ( $path && file_exists($path) ) {
-        readfile( $path );
+    /* Read the log through WP_Filesystem. The 'direct' method is
+       forced so no FTP credentials are requested. */
+    global $wp_filesystem;
+    if ( ! function_exists('WP_Filesystem') ) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
+    WP_Filesystem( false, false, true );
+
+    if ( $path && $wp_filesystem && $wp_filesystem->exists($path) ) {
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Sent as text/plain with nosniff.
+        echo $wp_filesystem->get_contents( $path );
     } else {
         echo "* Log\n";
     }

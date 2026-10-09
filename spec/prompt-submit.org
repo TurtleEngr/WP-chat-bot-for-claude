@@ -553,3 +553,40 @@ grant push access and say so.
 
 ** Response 8
 
+I'll pull the plugin code, switch the log-file reads in
+chat-bot-for-claude.php to WP_Filesystem, and send you the complete
+file.
+
+The repo already uses the =cb4c_g=/=cb4c_f= prefixes, and the only
+log-file read is the =readfile()= in =cb4c_fViewLog()=. Let me check
+how the log path is built before editing.
+
+The updated =chat-bot-for-claude.php= is ready to download, and it
+passes =php -l=.
+
+The file already uses the =cb4c_g= and =cb4c_f= prefixes, so I didn't
+rename anything. There was only one log-file read, in
+=cb4c_fViewLog()=, and that is the only place I changed:
+
+- *Setup:* it now loads =wp-admin/includes/file.php= if needed and
+  calls =WP_Filesystem( false, false, true )=. The third argument
+  makes it write directly to disk, so the View Log button never asks
+  for FTP credentials.
+- *Check:* =file_exists($path)= is now
+  =$wp_filesystem->exists($path)=.
+- *Read:* =readfile($path)= is now =echo
+  $wp_filesystem->get_contents($path)=.
+- *Linter note:* I added a =phpcs:ignore= comment on that line. The
+  checker would otherwise flag the output as unescaped, but the page
+  is sent as =text/plain= with =nosniff=, so the browser shows it as
+  text and never runs it.
+
+The =file_put_contents()= calls in =cb4c_fLogMessage()= and
+=cb4c_fClearLogs()= are unchanged.
+
+I didn't commit or push. You asked me not to request write access to
+the GitHub repo and to deliver the result as a download instead. This
+copy is read-only, so a push would fail without that access.
+
+The change is in the downloadable =chat-bot-for-claude.php=, ready for
+you to commit from your own checkout.
