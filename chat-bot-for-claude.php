@@ -19,8 +19,8 @@ if (! defined('ABSPATH')) {
 
 /*
  * ========================================
- * Globals  Prefix: cb4c_gVariableName
- * Function Prefix: cb4c_fFunctionName
+ * Globals  Prefix: cb4c_g
+ * Function Prefix: cb4c_f
  * ========================================
  */
 
