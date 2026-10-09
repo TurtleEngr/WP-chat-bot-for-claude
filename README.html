@@ -67,7 +67,7 @@
   <h1 id="chat-bot-for-claude-wordpress-plugin">Chat Bot For Claude
   (WordPress Plugin)</h1>
   <p><a href=
-  "https://img.shields.io/badge/version-2.5.1-orange.svg">version</a></p>
+  "https://img.shields.io/badge/version-2.5.2-orange.svg">version</a></p>
   <p><a href=
   "https://img.shields.io/badge/WordPress-Compatible-blue.svg">WordPress</a></p>
   <p>Integrate the Claude AI chat interface into your WordPress website using
@@ -204,31 +204,31 @@
   admin form.</p>
   <ul>
     <li>
-      <p><strong>cgClaudeChatFetchTimeOut</strong>: 5sec for each URL
+      <p><strong>cb4c<sub>gFetchTimeOut</sub></strong>: 5sec for each URL
       fetch</p>
     </li>
     <li>
-      <p><strong>cgClaudeChatResponseBudget</strong>: 20sec for the whole
+      <p><strong>cb4c<sub>gResponseBudget</sub></strong>: 20sec for the whole
       response</p>
     </li>
     <li>
-      <p><strong>cgClaudeChatRateLimit</strong>: 10 per min</p>
+      <p><strong>cb4c<sub>gRateLimit</sub></strong>: 10 per min</p>
     </li>
     <li>
-      <p><strong>cgClaudeChatPreFetchTtl</strong>: 3600 sec (1 hour)</p>
+      <p><strong>cb4c<sub>gPreFetchTtl</sub></strong>: 3600 sec (1 hour)</p>
     </li>
     <li>
-      <p><strong>cgClaudeChatMaxPreFetchUrls</strong>: 10</p>
+      <p><strong>cb4c<sub>gMaxPreFetchUrls</sub></strong>: 10</p>
       <ul>
         <li>Pre-fetch list limits. Content is cached in a transient for this
         many seconds, keyed by a hash of the URL list.</li>
       </ul>
     </li>
     <li>
-      <p><strong>cgClaudeChatMaxFetchBytes</strong>: 256 KB</p>
+      <p><strong>cb4c<sub>gMaxFetchBytes</sub></strong>: 256 KB</p>
     </li>
     <li>
-      <p><strong>cgClaudeChatMaxFetchChars</strong>: 20 KB</p>
+      <p><strong>cb4c<sub>gMaxFetchChars</sub></strong>: 20 KB</p>
       <ul>
         <li>The byte cap protects PHP memory; the character cap protects the
         token budget — a single large page can otherwise crowd out the Prefix
@@ -236,7 +236,7 @@
       </ul>
     </li>
     <li>
-      <p><strong>cgClaudeChatMaxToolRounds</strong>: 5</p>
+      <p><strong>cb4c<sub>gMaxToolRounds</sub></strong>: 5</p>
       <ul>
         <li>Max number of <code class="verbatim">send/tool_result</code>
         round trips. The response budget is the primary stop condition; this
@@ -245,16 +245,16 @@
       </ul>
     </li>
     <li>
-      <p><strong>cgClaudeChatMaxResponseBytes</strong>: 4 MB</p>
+      <p><strong>cb4c<sub>gMaxResponseBytes</sub></strong>: 4 MB</p>
     </li>
     <li>
-      <p><strong>cgClaudeChatMaxLogDumpChars</strong>: 4 KB</p>
+      <p><strong>cb4c<sub>gMaxLogDumpChars</sub></strong>: 4 KB</p>
     </li>
     <li>
-      <p><strong>cgClaudeChatMaxPrefixPrompt</strong>: 65 KB</p>
+      <p><strong>cb4c<sub>gMaxPrefixPrompt</sub></strong>: 65 KB</p>
     </li>
     <li>
-      <p><strong>cgClaudeChatLogDir</strong>: <code class=
+      <p><strong>cb4c<sub>gLogDir</sub></strong>: <code class=
       "verbatim">dirname(ABSPATH) . '/chat-bot-for-claude-log'</code></p>
       <ul>
         <li>The directory one level above the WordPress root. If WordPress is
@@ -264,21 +264,21 @@
       </ul>
     </li>
     <li>
-      <p><strong>cgClaudeChatLogFile</strong>: <code class=
+      <p><strong>cb4c<sub>gLogFile</sub></strong>: <code class=
       "verbatim">claude_log.org</code></p>
     </li>
   </ul>
   <h3 id="prefix-prompt">Prefix Prompt</h3>
-  <p>Registered in fClaudeChatRegisterSettings() with <code class=
+  <p>Registered in cb4c<sub>fRegisterSettings</sub>() with <code class=
   "verbatim">sanitize_textarea_field</code> as its sanitize callback
   (multi-line safe).</p>
   <p>Added at the bottom of the settings form via <code class=
-  "verbatim">fClaudeChatSettingsInit().</code> It uses <code class=
-  "verbatim">fClaudeChatTextareaFieldCallback()</code> that renders a
+  "verbatim">cb4c_fSettingsInit().</code> It uses <code class=
+  "verbatim">cb4c_fTextareaFieldCallback()</code> that renders a
   &amp;lt;textarea&gt; (6 rows × 60 cols) with a description explaining the
   caching behavior. Leaving it blank disables the feature entirely.</p>
   <p>prefix + <code class="verbatim">cache_control</code> - <code class=
-  "verbatim">fClaudeChatApiRequest()</code></p>
+  "verbatim">cb4c_fApiRequest()</code></p>
   <p>When a prefix is saved, it is sent in the <code class=
   "verbatim">system</code> parameter, separate from the user message.
   Pre-fetched page text is added as a second system block.</p>

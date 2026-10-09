@@ -1,6 +1,6 @@
 # Chat Bot For Claude (WordPress Plugin)
 
-![version](https://img.shields.io/badge/version-2.5.1-orange.svg)
+![version](https://img.shields.io/badge/version-2.5.2-orange.svg)
 
 ![WordPress](https://img.shields.io/badge/WordPress-Compatible-blue.svg)
 
@@ -126,63 +126,62 @@ These internal constants can be changed. The defaults values are shown
 here. Also, some of these values will be shown in the Claude Chat
 Settings admin form.
 
--   **cgClaudeChatFetchTimeOut**: 5sec for each URL fetch
+-   **cb4c~gFetchTimeOut~**: 5sec for each URL fetch
 
--   **cgClaudeChatResponseBudget**: 20sec for the whole response
+-   **cb4c~gResponseBudget~**: 20sec for the whole response
 
--   **cgClaudeChatRateLimit**: 10 per min
+-   **cb4c~gRateLimit~**: 10 per min
 
--   **cgClaudeChatPreFetchTtl**: 3600 sec (1 hour)
+-   **cb4c~gPreFetchTtl~**: 3600 sec (1 hour)
 
--   **cgClaudeChatMaxPreFetchUrls**: 10
+-   **cb4c~gMaxPreFetchUrls~**: 10
 
     -   Pre-fetch list limits. Content is cached in a transient for this
         many seconds, keyed by a hash of the URL list.
 
--   **cgClaudeChatMaxFetchBytes**: 256 KB
+-   **cb4c~gMaxFetchBytes~**: 256 KB
 
--   **cgClaudeChatMaxFetchChars**: 20 KB
+-   **cb4c~gMaxFetchChars~**: 20 KB
 
     -   The byte cap protects PHP memory; the character cap protects the
         token budget --- a single large page can otherwise crowd out the
         Prefix Prompt and the user\'s actual question. \*/
 
--   **cgClaudeChatMaxToolRounds**: 5
+-   **cb4c~gMaxToolRounds~**: 5
 
     -   Max number of `send/tool_result`{.verbatim} round trips. The
         response budget is the primary stop condition; this is a
         backstop so a model that keeps asking for cheap, fast fetches
         cannot loop indefinitely inside the budget.
 
--   **cgClaudeChatMaxResponseBytes**: 4 MB
+-   **cb4c~gMaxResponseBytes~**: 4 MB
 
--   **cgClaudeChatMaxLogDumpChars**: 4 KB
+-   **cb4c~gMaxLogDumpChars~**: 4 KB
 
--   **cgClaudeChatMaxPrefixPrompt**: 65 KB
+-   **cb4c~gMaxPrefixPrompt~**: 65 KB
 
--   **cgClaudeChatLogDir**:
+-   **cb4c~gLogDir~**:
     `dirname(ABSPATH) . '/chat-bot-for-claude-log'`{.verbatim}
 
     -   The directory one level above the WordPress root. If WordPress
         is installed in a subdirectory of `public_html`{.verbatim},
         change this so the log is still outside the web root.
 
--   **cgClaudeChatLogFile**: `claude_log.org`{.verbatim}
+-   **cb4c~gLogFile~**: `claude_log.org`{.verbatim}
 
 ### Prefix Prompt
 
-Registered in fClaudeChatRegisterSettings() with
+Registered in cb4c~fRegisterSettings~() with
 `sanitize_textarea_field`{.verbatim} as its sanitize callback
 (multi-line safe).
 
 Added at the bottom of the settings form via
-`fClaudeChatSettingsInit().`{.verbatim} It uses
-`fClaudeChatTextareaFieldCallback()`{.verbatim} that renders a
-&lt;textarea\> (6 rows × 60 cols) with a description explaining the
-caching behavior. Leaving it blank disables the feature entirely.
+`cb4c_fSettingsInit().`{.verbatim} It uses
+`cb4c_fTextareaFieldCallback()`{.verbatim} that renders a &lt;textarea\>
+(6 rows × 60 cols) with a description explaining the caching behavior.
+Leaving it blank disables the feature entirely.
 
-prefix + `cache_control`{.verbatim} -
-`fClaudeChatApiRequest()`{.verbatim}
+prefix + `cache_control`{.verbatim} - `cb4c_fApiRequest()`{.verbatim}
 
 When a prefix is saved, it is sent in the `system`{.verbatim} parameter,
 separate from the user message. Pre-fetched page text is added as a
