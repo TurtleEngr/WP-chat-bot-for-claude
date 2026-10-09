@@ -1,6 +1,6 @@
 # Chat Bot For Claude (WordPress Plugin)
 
-![version](https://img.shields.io/badge/version-2.5.2-orange.svg)
+![version](https://img.shields.io/badge/version-2.5.3-orange.svg)
 
 ![WordPress](https://img.shields.io/badge/WordPress-Compatible-blue.svg)
 
