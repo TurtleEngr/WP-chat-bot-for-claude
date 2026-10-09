@@ -590,3 +590,11 @@ copy is read-only, so a push would fail without that access.
 
 The change is in the downloadable =chat-bot-for-claude.php=, ready for
 you to commit from your own checkout.
+
+** Submitted 2026-10-09
+
+- Submitted chat-bot-for-claude-2.5.3.zip (Tag ver-2.5.3)
+
+- Wait for the review email. It will be sent to your email address,
+  turtle.engr@gmail.com, with the subject line: "[WordPress Plugin
+  Directory] Review in Progress: Chat Bot For Claude".
