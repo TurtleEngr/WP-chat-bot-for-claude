@@ -151,7 +151,8 @@ chat area. See [[https://github.com/TurtleEngr/WP-chat-bot-for-claude/blob/devel
 Go to 'Settings' > 'Claude Chat' in the WordPress admin panel to
 configure the following options:
 
-+ *API Key*: Enter your Claude API key.
++ *API Key*: Enter your Claude API key. (See Get your Claude API Key
+  below.)
 + *Model*: Select the Claude model you wish to use. (Do this after
   saving the API Key.)
 + *Max Tokens*: Set the maximum number of tokens for the response.
@@ -172,6 +173,24 @@ cannot be read from the web. Errors are written to the PHP error log
 with =error_log()=.
 
 See [[https://github.com/TurtleEngr/WP-chat-bot-for-claude/blob/develop/example-settings.org][example-settings.org]] file for a example prompt.
+
+*** Get your Claude API Key
+- Claude API keys are made in the Claude Console at
+  https://platform.claude.com/ which is separate from your claude.ai
+  chat account. To view your existing keys or create a new one, go to
+  Settings -> API keys.  claude
+
++ Sign in. Go to https://platform.claude.com/ and sign in. If you
+  don't have an account yet, create one.
++ Create the key. Click Create key and give the key a name. You can
+  also pick a workspace to scope it to and set an expiration date.
++ Copy it right away. The Console shows the full key, which starts
+  with sk-ant-, only once, when you create it. Store it somewhere
+  safe, like a secrets manager. If you lose it, you can't view it
+  again in the Console; you'll need to create a new one.
++ Add credits. API calls are paid from your Console API balance, which
+  is separate from any Claude subscription. Credits can be bought on
+  the Billing page at platform.claude.com/settings/billing.
 
 ** Code Customization
 
